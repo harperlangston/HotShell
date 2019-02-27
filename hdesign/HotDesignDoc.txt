@@ -1,0 +1,827 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	DESIGN DOCUMENT FOR HOTSHELL
+
+		   By
+
+	   M. Harper Langston
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Introduction:
+	This Design Document has been created to help Unix tool
+	developers understand the thought processes behind the creation
+	of HotShell.  For basic
+	information regarding using hotshell from an end-user
+	perspective, please see the document, HotUserDoc.txt
+
+
+Team Members:
+
+	For more information on HotShell, please contact the following developer:
+
+	Name: Harper Langston
+	Email: harperlangston@gmail.com
+
+
+HotShell Architecture:
+
+	Languages Used:
+
+	The command-line interpreter was written in Perl.  The
+	utilities were written in both Perl and Korn Shell.  Many of
+	the facilities provided by the Unix system were utilized.
+
+	Flow Control:
+
+	(Note: Many of the topics mentioned in this section, such as
+	variables, assignment, here documents, etc. will be discussed
+	later)
+
+	The hotshell script is located in $HOME/HotShell. It is the
+	command line interpreter and was written in Perl.
+
+	When hotshell is first executed, an initialization process
+	begins.
+	During this time the following occurs:
+
+	1. The default values are set for the sizes of the directory
+	stack and the history list.
+
+	2. The current working directory is pushed onto the directory
+	stack
+
+	3. Values are loaded from the .hotshrc file
+
+	4. The path to the hotshell commands is added to the
+	environment variable $PATH.
+
+	5. If the .hhistory file does not exist (indicating that this
+	is not a hotshell subshell), it is created.
+
+	6. If applicable: A flag is set to indicate that this is not a
+	hotshell subshell. This is important since we don't want
+	hotshell subshells to recreate the .hhistory or add the already
+	set path to $PATH.
+
+	7. If this is not a hotshell subshell, create a path to the
+	hotshell commands which are located in the $HOME/HotShell/hcmds
+	directory.
+
+	The following prompt is then displayed:
+
+	hotshell>
+
+	and the hotshell script interprets each line input by the user
+	according to the following sequence:
+
+	a. Eliminate any leading whitespace
+
+	b. Determine if any substitutions have to be made
+
+	c. Line stored in .hhistory file
+
+	d. If an '=' is found, an assignment is being requested.  Call
+	the appropriate subroutine to handle the assignment.
+
+	e. Check if the line contains "hsetenv."  This indicates an
+	assignment to an environment variable.  Call the appropriate
+	subroutine to handle environment variable assignment.
+
+	f. Check for the '<<' pattern.  This indicates that a here
+	document is being used.  Call the appropriate subroutine to
+	handle here documents.
+
+	g. Separate commands if they are joined by ";"
+
+	h. Determine if an undefined variable has been entered.  If so,
+	print an error message and return to the prompt.
+
+	i. Parse line and save tokens in an array
+
+	j. Determine if an attempt is being made to unset a user
+	variable. If so call the appropriate subroutine.
+
+	k. Determine if an attempt is being made to unset an
+	environment variable. If so call the appropriate subroutine.
+
+	l. Perform variable interpolation.  This wasn't possible before
+	since it first had to be determined whether the input line
+	specified the setting or unsetting of variables.
+
+	m. Perform alias substitution
+
+	n. Extract first token from line.
+
+	o. If token is "exit", then perform any necessary cleanup, such
+	as deleting the .hhistory file, and quit hotshell.
+
+	If the input is valid, the first token should represent a
+	command. Based  on its value, hotshell will do one of two
+	things:
+
+	1. If the command is one of hotshell's built-in functions, then
+	the appropriate subroutine will be called.
+
+	2. Otherwise, the whole input line will be executed using the
+	Perl system() function.  This function hands the string to a
+	new Bourne Shell shell to be executed as a command.  This means
+	that child processes are forked for all commands that are not
+	built into hotshell.  After the child process finishes
+	executing the command, control returns to hotshell, and the
+	user is presented with another prompt and he or she may enter a
+	new command.
+
+	The are a number of hman pages available that describe in
+	detail many of the hotshell features.  All hman pages are
+	stored in the #HOME/HotShell/hmanpgs directory.  These pages
+	can be called from the prompt by entering:
+
+	hotshell>hman command_name;
+
+	The hman pages are displayed using the 'more' utility.
+
+
+
+Detailed Description:
+
+	Below is a detailed description of the features available in
+	HotShell.  First, we describe the features inherent to the
+	hotshell command itself (written solely in Perl).  After that,
+	the internal manual pages for each HotShell-specific command is
+	listed in alphabetical order and then each command is
+	described in terms of language used and its specific flow
+	control.  Each internal manual page is separated by a line of
+	---- marks.  Any bugs for each command are listed under that
+	command as well as in the User Document Manual Pages for
+	each command under Notes/Bugs.
+
+---------------------------------------------
+COMMAND: hotshell
+
+	HotShell supports the following command forms:
+	   - simple commands
+	   - multiple commands cmd1; cmd2;
+	   - command grouping (cmd1; cmd2; cmd3)
+	   - background commands cmd &
+	   - pipes cmd1 | cmd2
+	   - command substitution cmd1 `cmd2`
+	   - wildcards for file name abbreviation
+	   - redirection of stdin and stdout (<, >, >>)
+	   - creation of hotshell subshells
+
+	Shell Customization
+
+	   - .hotshrc file used for all aliases, defaults, and
+	   variables
+	   - hpushd, hpopd implemented with a circular stack.  The
+	   default size is 10.  The size can be altered using the
+	   command hsetsize entered at the prompt or placed within the
+	   .hothsrc file.
+
+	Shell Variables
+
+	    - user can set and unset environment as well as
+	    user-defined variables
+
+	Managing The Command Path
+
+	    - whereis
+	    - file
+	    - type
+	    - aliasing
+	    - unaliasing
+
+	Command History
+
+	    - .hhistory file used to save command list
+	    - command line editing
+	    - repeating previous commands
+
+
+	Variables
+
+	All variables in hotshell begin with '$'.
+
+	User-defined Variables
+
+	Assignment of user-defined variables is based on the Perl
+	model.
+
+	hotshell>$age = 25;
+
+	This assigns the value of 25 to the variable $age. The right
+	side of an assignment statement can also be a variable:
+
+	hotshell>$myage = $age;
+
+	Now $myage will also have the value 25.
+
+	To unset a user-defined variable use the hunset function.
+
+	hotshell>hunset $age
+
+	The $age variable is now no longer set.
+
+	The special hotshell function hshowvars, will display all
+	user-defined variables and their values:
+
+	hotshell>hshowvars
+	myage 25
+
+	User-defined variables are stored in a hash called %uservars.
+
+	Environment Variables
+
+	hsetenv sets an environment variable.  In order to set an
+	environment variable in hotshell, the following syntax is
+	used:
+
+	hsetenv $VARNAME  [$]value
+	(note: value can be a variable name or a string)
+
+	By convention, environment variable names are all in uppercase
+	letters. Environment variables are visible to subshells while
+	user-defined variables are not. hsetenv calls can be invoked on
+	the command-line or placed in the .hotshrc file. hsetenv
+	verifies that the variable name begins with a '$'
+
+	hsetenv unsets an environment variable.
+
+	hunsetenv $VARNAME
+
+	Environment variables are stored in the built-in Perl hash
+	%ENV. Variable interpolation is implemented by searching each
+	line for the presence of tokens beginning with '$'.  For each
+	such token found, its value is determined by searching in turn
+	the hashes %uservars and %ENV for user defined and environment
+	variables, respectively.  If found, the value is then
+	substituted for the key. If not found, an error message is
+	printed out, the input line is discarded and the user is
+	presented with a new prompt.
+
+
+	Aliasing
+
+	Aliasing is a feature that allows the user to assign a name to
+	a command or a sequence of commands. Variable interpolation is
+	not performed on the definition.  To use an alias, just type
+	its name at the command line, and it's definition will be
+	executed.
+
+	hotshell uses the two functions: halias and hunalias, to
+	implement aliasing.
+
+	halias [name] [definition]
+	hunalias name
+
+	When halias is invoked without any arguments, all aliases and
+	their definitions are listed.
+
+	When halias is invoked with one argument, that one argument is
+	supposed to be the name of a previously defined alias.  If the
+	name is in fact an alias, then it's definition is printed.  If
+	it is not the name of an alias, an error message is printed.
+
+	When halias is invoked with two or more arguments, the first
+	argument is assumed to be the name of a new or previously
+	defined alias and the other arguments are collectively regarded
+	as the definition. halias calls can be invoked on the command
+	line or placed in the .hotshrc file.
+
+	hunalias releases a previously defined alias. If the argument
+	is not the name of an alias, an error message is printed.
+
+	Aliasing is implemented using a hash %aliases.  Input lines are
+	searched for the presence of aliases, and if any are found,
+	their definitions are substituted for their names within the
+	input line.
+
+
+	Here Documents
+
+	Used to temporarily redirect the standard input within a shell
+	program.  General syntax:
+
+	command arguments << symbol
+	.... here document....
+	symbol
+
+	For hotshell the here document implementation was written from
+	the ground up.  Essentially, everything between the two
+	'symbol' delimiters is saved to a file and then the contents of
+	the file are redirected to the command using <.  Full variable
+	interpolation is used on the here document text.
+
+
+	Directory Stack
+
+	The directory stack allows users to keep track of multiple
+	directories and to switch between them easily.
+
+	hotshell uses the three functions: hdirs, hpopd, and hpopd to
+	handle the directory stack.
+
+	hdirs
+	hpopd [+n]
+	hpushd [+n]
+	hpushd [directory]
+
+
+	hdirs displays the contents of the directory stack. The top of
+	the stack is the leftmost directory.  The '~' represents the
+	home directory. Therefore, an entry such as ~/foo would be the
+	same as $HOME/foo. The top of the stack always contains the
+	current working directory.
+
+	hpopd: with no arguments removes the top directory from the
+	stack. It then changes the current working directory to
+	whatever directory is now sitting on top of the stack.
+
+	hpopd +n: removes the nth directory.  Begin counting at 0. Note
+	that n must be one or more.
+
+	hpushd: with no arguments switches the top two entries on the
+	stack. It then changes the current working directory to
+	whatever directory is now sitting on top of the stack.
+
+	hpushd +n: rotates the nth directory to the top of the stack.
+	It then changes the current working directory to the new
+	directory. Begin counting at 0. Note that n must be one or
+	more.
+
+	hpushd directory: pushes the directory onto the stack and makes
+	that directory the current working directory.
+
+	The directory stack features are based on the csh model, even
+	though the implementation was written entirely using Perl
+	constructs such as push, pop, shift and unshift in order to
+	simulate the circular stack.
+
+
+	History
+
+	The hhistory mechanism stores commands in a list in the
+	.hhistory file.  This enables users to avoid repetitive typing
+	and also makes the saved commands available for later use in a
+	variety of ways.
+
+	hhistory with no arguments simply displays the contents of the
+	.hhistory file.  The number of commands that are saved can be
+	changed by utilizing the hsethhistory command.  The default
+	value is 10.
+
+	hhistory can also take one argument in which case it will only
+	display up to 'number' previous commands.
+
+	The ^pattern^string editing feature allows the user to
+	substitute 'string' for the first instance of 'pattern' found
+	in the previous command, and then the modified command is
+	executed.
+
+	The !n:s/pattern/string/ editing feature is a more general
+	version of the previous utility.  The 'string' is substituted
+	for the first instance of 'pattern' in command number n andthe
+	modified command is executed. Also, !n:gs/pattern/string/
+	performs the substitution on all instances of the pattern.
+
+	!n will repeat command number n.
+
+	!! repeats the previous command.
+
+	hsethhistory resets the size of the hhistory list. The default
+	value is 10. hsetsize calls can be invoked on the command-line
+	or placed in the .hotshrc file.
+
+	The pattern-matching features were implemented using Perl's
+	'=~' operator.
+
+
+	The .hotshrc File
+
+	The special hotshell command: hotshrc, reloads the .hotshrc
+	file.
+
+	hotshell>hotshrc
+
+	The .hotshrc file is used for customization.  It stores
+	aliases, defaults and variables.  It's values are loaded
+	automatically once when hotshell is invoked and once for each
+	hotshell subshell.  Therefore, if the user were to add new
+	entries to the .hotshrc file, those changes would not be
+	visible to the current hotshell.  In order for the current
+	hotshell to 'see' those changes the .hotshrc file would have to
+	be reloaded.
+
+
+	Running hotshell Scripts
+
+	If the line:
+
+	#!/full_path_to_home_dir/HotShell/hotshell
+
+	were placed at the top of a text file containing shell
+	commands, and the file were made executable, it would run
+	within hotshell.
+
+
+	Notes:
+	If the user tries to write to an existing file, then an
+	overwrite will be performed.
+
+	rm removes files without any type of confirmation.
+
+	cd was implemented using Perl's chdir() function.
+
+
+	Bugs:
+
+	When running a background process, the child PID number is
+	printed but no acknowledgement is made when the child dies.
+	Also, nothing is displayed when 'kill' is used to kill a
+	background process.
+
+----------------------------------------------------
+
+COMMAND:  har
+	har archives files so that they can be moved to a new
+	location.  It takes a list of files or directories and packs
+	them up using tar and then uses uuencode with here documents
+	along with making the bundle executable so that it can be
+	moved, run and unpacked.  There is also the option to archive
+	files only newer than a specified file using the -n switch.
+	The bundle when run will maintain all original file permissions
+	using tar's x switch.
+
+	har is written in Korn Shell with calls, as stated, to tar and
+	uuencode along with here documents.  It creates a temporary
+	file to be uuencoded and then appended to the self-extracting
+	shell-script file, named by the user (see man page for exact
+	syntax).  It does quite a few error checks to make sure that
+	the name of the bundle to be made does not already exist and if
+	all of the supplied files or directories exist.  If there are
+	any files are directories which do not exist, har exits,
+	removes the bundle and has an exit status of 1.  If the syntax
+	call to har is incorrect, the exit status is also 1, and if the
+	bundle name already exists, the exit status is 1.
+
+	If the har file is created correctly, it will exist as an
+	executable self-extracting file in the current directory, and
+	the exit status is 0.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hbwrite
+	hbwrite takes a list of users and a message, separated by a
+	colon (hbwrite usr1 . . . usrn : broadcast message).  hbwrite
+	is written in Korn Shell and looks for users on the local host
+	only.  Also, the broadcast message must include no punctuation
+	or quotation marks ("';:.,<>?!, etc).
+
+	First, hbwrite looks for a proper number of arguments (at least
+	3 - usr : message).  Second, hbwrite parses out the lines and
+	creates a string variable out of everything that comes after
+	the : mark after usrn.  Then, it loops through each user, uses
+	who piped to grep to see if that user is logged on the
+	localhost, and if so, it echos the message and pipes it to a
+	Unix write command.
+
+	If all users get the message, the exit status is 0.  If the
+	syntax of the hbwrite is incorrect, the exit status is 1.  If
+	one or more users are not logged onto the localhost, the exit
+	status is 2 and the rest of the users are still sent the
+	message.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hcgrep
+
+	hcgrep is a resursive context grep.  Given a pattern and a
+	directory name, it traverses the entire tree rooted at the
+	directory and returns up to five lines each time the pattern
+	is found: two lines above where the pattern was found, the line
+	containing the pattern, and two lines below.  hcrep is
+	implemented in Perl.
+
+	It first validates that the correct number of arguments have
+	been provided and then makes sure that the second argument is
+	a directory.  All files within the tree are found using the
+	Unix 'find' utility. For each file, the entire contents are
+	read into an array. As each line is read into the array, the
+	Perl '=~' operator is used in conjunction with the pattern to
+	determine whether or not a match has been found. The line
+	numbers of all matches within a file are stored in a separate
+	array.  After the file has been completely read, the array
+	containing the numbers of matched lines is looped through and
+	the appropriate lines are displayed.
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  heds
+	heds is the electronic distribution system of HotShell.  heds
+	takes an e-mail address as its only argument and packs up
+	everything in $HOME/HotShell, using har and sends it to the
+	address.
+
+	heds is writen in Korn Shell; after checking for one argument
+	(it exits with a status of 1 if there are more or less than 1
+	argument), it creates the har file, and then like hstork and
+	har again, it creates a tar file, uuencoding the har file
+	inside of a Korn shell script surrounded by a here document.
+	Additionally, an installation step guide is placed at the
+	beginning of the script, describing to the user what they need
+	to do to install HotShell.  Using mail, this is all sent to the
+	e-mail address specified.
+
+	Upon receiving the package, the user detaches the message,
+	makes it executable, and runs it from their home directory.
+	Since it is a har file, all permissions are preserved.  When
+	they unpack it, a message is sent to the sender as well as
+	harperlangston@gmail.com (Harper Langston) as to whether or
+	not the installation was successful.  Cuurently, the sender
+	will only receive a message if the use heds to forward HotShell
+	to someone else on their system, but harperlangston@gmail.com will
+	always receive a message.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hget
+	hget takes a filename and date (yyyy/mm/dd) and reports the
+	changes in file since date.  It is assumed that the file is
+	under a source control via RCS.
+
+	hget is written in Korn Shell, and whichever directory is the
+	current directory, it dirst looks for an RCS directory.  If
+	there is none, it exits with a status of 1.  If there are not
+	two arguments (file and date), it exits with a status of 2.
+	Then, it uses grep to check for the proper format of the date.
+	If the format of the date is incorrect, hget exits with a
+	status of 3.  Currently, however, incorrect dates may slip
+	through this check, but will be rejected by RCS later.  If the
+	filename exists in the current directory, hget exits with a
+	status of 4 because if the file is under RCS control, hget
+	assumes the file is already checked in and so the file would
+	not be directly visible.  IF RCS cannot retrieve the file, then
+	hget exits with a status of 5.  If it cannot get a version from
+	date or before, it exits with a status of 6.
+
+	By this point, the newest version and the date-based version
+	could both be checked-out (co is called without -l since we
+	don't want to edit them), so we call Unix's diff to look at the
+	differences.  If they are the same, the exit status is 7.  If
+	they are different, the differences are shown according to diff
+	and the exit status is 0.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hhog
+	hhog finds the user who is running the most jobs on the
+	localhost.  If the -w option is used, a mail message is sent to
+	the user asking them politely to quit a few jobs.
+
+	hhog is written in Korn Shell.  First it checks to make sure
+	that there are no more than 1 command line arguments.  If this
+	is true, then it runs ps -ef and then pipes the result to awk
+	which creates an associative array of users and number of
+	processes.  Then, the result is piped to a reverse numerical
+	sort, and the largest is stripped off of the top.  If -w is
+	used, mail is used to send a message.  If not, the hhogger is
+	reported to the screen along with how many processes they are
+	running.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hmail
+	hmail is a utility that allows the user to send mail and
+	retrieve information in various ways. It has been
+	implemented in Perl.
+
+	hmail without arguments brings up a menu for a personal
+	address book. It can store a user's name, nickname, login
+	name, e-mail address, phone number and fax number.  All
+	information is stored in the .hmailfiles directory.  Each
+	user is represented by a file within that directory named
+	for the user.
+
+	The user is able to send mail based on information stored
+	within the address book. Using hmail (-l|-nn|-u) user:
+	will send mail based on the recipient's login name, nickname,
+	or user name, respectively.  It searches through the address
+	book until it comes up with a match and then determines if
+	an e-mail address has been stored for that person. If so, the
+	e-mail address is used with mailx to allow the user to enter
+	and send a message.
+
+	hmain -n user: Mail notification feature. It checks if new
+	mail has arrived from a specified user.  The user's name is
+	looked up in the address book to determine if his or her e-mail
+	address has been saved. If new mail has been sent by the
+	specified user a notification message is printed.
+
+	hmail file e-mail_address:  using mailx contents of the file
+	are redirected to be the message sent to the given e-mail
+	address.
+
+	hmail forward new_e-mail_address: If you have changed your
+	e-mail address, your new messages will be forwarded and a
+	message will be sent to the each sender alerting them to the
+	change. Creates a .forward file to handle mail forwarding and
+	a .vacation.msg file in which to store the message that will
+	be sent to each sender.
+
+	hcryptmail file password e-mail_address: A built-in hotshell
+	command. It encrypts the file using the Unix crypt utility
+	and the password as the key. It then sends the encrypted file
+	using hmail.
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hprint
+	hprint allows a user to send a file to a printer and wait for a
+	specific amount of time to see if the job has become active.
+	If it has not, hprint looks for available printers in the
+	$HOME/HotShell/.hotprinters file and finds the one with the
+	smallest queue which may actually be the original printer.  The
+	original requested printer must be in the .hotprinters file,
+	but this is something that a designer could easily change if
+	desired.  We set it up this way so that the user would have to
+	add the printer to the .hotprinters file for future possible
+	use.  There is also the option to add or remove a file from the
+	.hotprinters file.
+
+	hprint is written in Korn Shell.  First, there is a series of
+	error-checking to make sure that the write number of arguments
+	is given.  There must be at least 2 arguments and no more than
+	3.  The hprint -a printer option adds a printer to the
+	.hotprinters file if it is not already in there.  hprint -d
+	printer does the opposite, removing a printer from
+	.hotprinters, first checking that it is there.
+
+	hprint printer job uses the basic lpr command, not waiting for
+	a specific amount of time.  hprint printer job time(in seconds)
+	sends job to printer using lpr, then sleeps for time in
+	seconds, then uses lpq to check to see if the job is active.
+	If it is not, it calls lprm to remove the job from printer's
+	queue and then looks in the .hotprinters file, looking for the
+	one with the smallest queue, by using associative arrays.
+	Whichever is the smallest, job is sent there, and the user is
+	alerted to the change.
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hquota
+	hquota reports back the five largest files in a directory in
+	the ls -l style, with largest being reported first.  It is
+	written in Korn Shell, and has a couple of extra options.  If
+	hquota is called by itself, it looks for the five largest files
+	in the current directory only.  If the -r option is used,
+	hquota does a recursive search from the directory for the five
+	largest files.  The user can also pass a directory with or
+	without -r, and hquota is then run on the specified directory.
+
+	After making sure that the proper number of arguments are
+	given, hquota uses Unix's ls piped to a sort command by size,
+	piped to head -5 to pull out the five largest.  If -r is used,
+	we use ls -Rl.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hrgrep
+	hrgrep is a recursive grep which takes a pattern and a
+	directory and recursively searches for pattern in the
+	directory's and its subdirecties' files.  hrgrep is implemented
+	in Korn Shell.  After checking to see if a valid number of
+	arguments has been given and that the second argument is indeed
+	a directory, hrgrep uses Unix's find command with -exec grep.
+	If the correct number of arguments are given, the exit status
+	is zero even if find/grep found no patterns.  Otherwise, the
+	exit status is 1.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hrm
+	hrm takes one or more files or wildcards and moves the files to
+	$HOME/HotShell/.htrash.  hrm is written in Korn Shell, and hrm
+	first makes sure that .htrash exists.  If not, it creates this
+	directory and places the requested files in that directory.
+	hrm also can take the -e switch which calls Unix's rm to clean
+	out the .htrash folder.  If a user calls hrm on a file which
+	already exists in .htrash, the copy in .htrash is overwritten
+	without a prompt from the user.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  hstork
+	hstork bundles the user's favorite specifications and mails
+	them to a designated e-mail address.  hstork is written in Korn
+	Shell, and currently, it only bundles the users .addressbook
+	.netscape/bookmarks.hrml and everything under the HotShell
+	directory.  Additional files can easily be added to this script
+	by someone familiar with Korn Shell.  Future versions of
+	HotShell could allow the user to specify additional files from
+	the command line.
+
+	hstork calls tar to create a tar file called hbundle.tar, first
+	seeing if that file already exists in $HOME.  If so, it removes
+	it.  Then, it creates an executable Korn Shell script with a
+	brief description at the beginning on how to unpack it.  Then,
+	it uses uuencode to put the tar file in the new tarfile.  Then,
+	a here document is placed around the uuencoded part, which will
+	call uudecode and unpack the original tar file once the
+	receiver unpacks it.  A message is then sent back to the
+	originator of the message as long as the addressee and sender
+	are on the same system.
+
+	If no destination is given, the exit status is 1.  Otherwise,
+	there is no exit status.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+COMMAND:  htalk
+	htalk takes a user name as its only argument.  htalk will
+	invoke a chat session with that user even if they are not
+	logged onto the localhost.  htalk is written in Korn Shell, and
+	first it calls Unix's who piped to grep to see if user is on
+	the local host.  If they are, htalk invokes Unix's talk.  If
+	they are not, htalk loops through the $HOME/HotShell/.hothosts
+	file, using finger on the remote hosts pipoed to grep to find
+	the user name.  If they are found, htalk is called upon the
+	first successful grep.  Otherwise, an error message pops up.
+	If the .hothosts file does not exist, the user is alerted and
+	given a sample of what the file should look like.
+
+	If the user is ever found and talk is called, htalk returns an
+	exit status of 0.  If the number of arguments is wrong, the
+	exit status is 1.  If the user is not ever found on any hosts,
+	the exit status is 2.  If the .hothosts file does not exist in
+	$HOME/HotShell, the exit status is 3.
+
+
+----------------------------------------------------
+
+
+Bugs:
+	As described above, any bugs are described above in each
+	internal command manual section. Any bugs are also listed
+	in the User Document in each manual page under Notes/Bugs
+	for that command.
+
+
+
+This concludes the Design Document for Harper Langston's HotShell.  For more information, see the
+HotShell User and Installation Guide in the hdesign directory
+under HotUserDoc.txt
+

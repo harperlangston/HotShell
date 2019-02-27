@@ -1,0 +1,2148 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+		USER GUIDE AND INSTALLATION DOCUMENT FOR HOTSHELL
+	
+				By
+						
+			M. Harper Langston
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+Introduction:
+	The following is the User and Installation Guide for 
+	HotShell.  Included are Software Requirements, Size, 
+	Permissions, and internal manual pages needed by
+	end-users for using HotShell.  For information on
+	design aspects, see HotDesignDoc.txt, the design
+	document for HotShell and its features.
+
+
+Software Requirements:
+	HotShell is meant to run on the Unix platform, and so, in order
+	to invoke HotShell, the user needs to be running a common shell
+	and know how to set the path to the HotShell directory to be
+	able to call HotShell from anywhere.  The most common shells
+	are Bourne, Korn and C Shells.  The installation guide below
+	describes how to set your PATH variable in these shells.
+	Moreover, since HotShell is written in Perl and Korn Shell,
+	your Unix system must have Perl installed in
+	/usr/local/bin/perl and Korn Shell in /bin/ksh.
+
+	HotShell comes with its own files for hprint and htalk, so
+	there is no need to have access to /etc/hosts and the global
+	printers.conf file.  Standard Unix utilities are also required,
+	such as ls, tar, uuencode, mailx, etc.  If when running
+	HotShell, you notice that one of the commands will not work,
+	try reading the man page for that command (all manual pages are
+	also listed below) and look in the SEE ALSO section.  Often
+	times, there may be a basic Unix command that is listed that
+	you do not have on your system.  If this is so, ask your
+	Systems Operator to install that command.
+
+Size:
+	HotShell requires 460K amount of space for the self-extracting
+	installation file and about 212K amount of space for the HotShell
+	directory and all file which will be in $HOME.  So, the user
+	should allocate about 700K for the whole process, and once
+	the installation file is removed, HotShell will require 
+	about 300K of space to ensure that there is enough space
+	for utilities such as hmail to store files. For more
+	information on the installation process, see installation below.
+
+Permissions:
+	HotShell is designed to have read write and execute permissions
+	for the $USER depending on the file type (scripts are
+	executable and manual pages are readable.  Write permissions
+	have been maintained for developers).  If the user, designated
+	by $USER, installs HotShell in their own $HOME directory, they
+	will have access to run all available HotShell functions and
+	specifications.
+
+Environment:
+	The HotShell directory should be placed in the user's $HOME
+	directory.  Within the $HOME/HotShell directory, there are
+	three other visible directories:
+
+	1.  hcmds contains all HotShell-specific commands.
+	2.  hdesign contains this User Guide and the Design Document
+	3.  hmangs contains all manual pages for HotShell (see also
+	below)
+
+	Additionally, $HOME/HotShell contains the hotshell executable,
+	and all .hxxx files (.hothosts, .hotprinters, .htrash
+	directory, .hmail).
+
+	HotShell also has its own variables, as set up in .hotshrc upon
+	load-up (see hotshrc below for more details), and it gets
+	environmental variables from a built-in Perl hash, designated
+	by the system.  However, the user can change the environment
+	variables.  See the man pages for hotshell below as well as the
+	Help section for more details on setting environmental
+	variables.
+
+Installation of HotShell
+	The HotShell command, heds, was used to mail HotShell to you.
+	See heds below for more information on distributing this
+	package to others.  You may remember that the attached file
+	also had an installation description at the beginning of it.
+	Below is that detailed installation procedure:
+
+		You are currently looking at HotShell.  
+		After installation, please read the user
+		documents located in your $HOME/HotShell directory.
+		For more questions, please e-mail harperlangston@gmail.com
+
+		To install, HotShell, please follow these steps:
+		1. Save this message in your home directory as
+		HotInstall
+		2. Go to your home directory and type: chmod +x
+		HotInstall
+		3. Type ./HotInstall to execute the self-installation,
+		again, in your home directory
+		4. There will be a directory called HotShell with the
+		following directories:
+
+			- hcmds:  contains all HotShell scripts and the
+			hotshell executable command
+			- hmanpgs:  contains all manual pages for all
+			hotshell commands.  You can view these by
+			themselves by typing more (file) from the
+			hmanpgs directory or invoke them from hotshell
+			by typing hman (hotshell command).
+			- hdesign: contains design document and user
+			guide. The design document is useful for
+			developers, and the user guide is for
+			end-users, containing this installation guide
+			as well as tutorials for hotshell and all
+			scripts.
+
+		5. Set your path to include the hotshell executable:
+		If you are in C-Shell, type at the prompt:
+		setenv PATH ${PATH}:${HOME}/HotShell/hcmds
+
+		If you are in the Bourne or Korn Shell, type:
+		PATH=${PATH}:${HOME}/HotShell/hcmds
+
+		6. Now that your path is set, type hotshell from your
+		home.
+		7. Again, for more information, contact harperlangston@gmail.com
+		
+		8. Also, to send this to anyone else, enter hotshell
+		and type:
+		heds <destination e-mail address>
+
+	The above installation procedure should have by now been
+	completed by the user reading this documentation.  Again, to
+	invoke hotshell, type hotshell if you have set your $PATH to
+	include $HOME/HotShell.  If not, type $HOME/HotShell/hotshell.
+
+Tutorial:
+	After the installation of HotShell, the user can execute all
+	basic Unix commands (ls, ps, date, etc.) from hotshell as well
+	as a few HotShell-specific commands. The following tutorial
+	briefly explains what each function and utility in HotShell
+	does.  The manual pages below each give examples of how to use
+	each utility or HotShell function.
+
+	Again, for more detailed descriptions and information on
+	HotShell-specific commands, the manual page for each script is
+	attached below, and manual pages for basic Unix commands can be
+	viewed by typing man command from the Unix or hotshell prompt.
+	To view HotShell-specific manual pages from within HotShell,
+	type: hman command at the hotshell> prompt.
+	Example:
+		hotshell>hman hquota - will display manual page for
+		hquota
+
+
+
+	Shell Processing:
+
+	To start HotShell, type: hotshell
+	The user will see the following prompt: hotshell>
+	From this prompt, the user can type any command.
+	Example:
+		hotshell>date
+		Tue Nov 28 22:24:17 EST 2000
+		hotshell>
+
+
+	Additionally, the user can execute the following command
+	forms:
+
+		Simple commands (ls, ps, etc)
+		Multiple commands cmd1; cmd2;
+		Command grouping (cmd1; cmd2; cmd3)
+		Background commands cmd &
+		Pipes cmd1 | cmd2
+		Command substitution cmd1 `cmd2`
+		Use of wildcard for file name abbreviation (*,?)
+		Here documents
+		Redirection of stdin and stdout (<, >, >>)
+		Subshell of hotshell : $ hotshell
+
+
+
+	Shell Customization, History and Shell Variables:
+
+	Shell customization, history and setting shell variables can be
+	done using the following HotShell commands:  hotshrc, hsetenv,
+	hunsetenv, halias, hdirs, henv, hpushd, hpopd, hunset,
+	hshowvars, hunalias.  Here is a brief description of each one;
+	however, the manual pages below give detailed descriptions of
+	how to use each one as well as examples.
+
+		 1. halias - allows user to assign a name or 'alias' to
+		 a command or group of commands.
+		 2. hunalias - releases a previously defined alias
+		 3. hsetenv - set an environment variable
+		 4. hunsetenv - unset an environment variable
+		 5. hunset - unset a user-defined variable (for setting
+		 variables, the name = value assignment is used.  See
+		 hunset manual page below for examples).
+		 6. hshowvars - display user-defined variables and
+		 their values
+		 7. hpushd - add a directory to directory stack
+		 8. hpopd - pop a directory off of the directory stack
+		 and make it the current directory
+		 9. hsetsize - reset size of directory stack (default
+		 value is 10)
+		 10. hdirs - display the contents of the directory
+		 stack
+		 11. hhistory - manipulates commands stored in the
+		 .hhistory file
+		 12. hsethhistory - reset the size of the .hhistory
+		 list (default value is 10)
+		 13. hotshrc - reloads the .hotshrc file
+
+
+	File Management:
+
+	There are three HotShell-specific commands for file
+	management:  hrgrep, hcgrep and hrm.  Below is a brief
+	description of what each one does.  see the manual pages below
+	for detailed descriptions.
+
+		1. hrgrep - recursive grep that when given a pattern
+		and a directory, will traverse the entire tree under
+		dir to report occurrence of pattern.
+		2. hcgrep - context grep which returns up to 5 lines, 2
+		lines above where the pattern was found, the line
+		containing the pattern, and two lines below.
+		3. hrm, moves files to a trash ($HOME/Hotshell/.htrash)
+		directory, that users can periodically empty on demand
+		using hrm -e.
+
+
+	Mail Facility:
+
+	The HotShell mail facility is handled by hmail.  Here is a
+	brief description of what hmail can do; for a more detailed
+	description as well as examples, see the manual pages for hmail
+	and hcryptmail below.
+
+		1. hmail is a front-end to mailx that allows the user
+		to have a personal address book, which can store user
+		nicknames, loginnames, email addresses, phone, fax,
+		etc.
+		2. hmail will also allow the user to store messages in
+		folders, where the names of folders are specified by
+		the user (a la pine). (THIS MESSAGE STORING DEVICE IS
+		STILL UNDER CONSTRUCTION - AVAILABLE IN HotShell 1.2).
+		3. hmail -n user : this is a mail notification feature
+		which checks if new mail has arrived from a specific
+		user, and will notify if so.
+		4. hmail forward - if the user has changed his/her
+		email address, their new messages should be forwarded
+		and the sender should be notified via a mail message.
+		5. hcryptmail file passwd email - encrypts the file
+		using that passwd and hmails it to recipient.
+
+
+	Printing:
+
+	The HotShell printing utility is hprint.  The following is a
+	brief description of what hprint is used for; for a more
+	detailed description and examples of how to use it, see the
+	manual page for hprint below.
+
+		1. hprint printer job time - sends a job to a specific
+		printer.  If the job has not become active within the
+		time specified in seconds by the user, hprint will
+		check for other printers in the
+		$HOME/HotShell/.hotprinters file and queue the job on
+		the printer that has the smallest queue. hprint will
+		then advise the user of change of destination. It the
+		time is not specified, the user does not care. The
+		initial desired printer must be in the .hotprinters
+		file.  If it is not, the user can use hprint -a printer
+		to add it.
+		2. hprint -a printer - add printer to the .hotprinters
+		file.
+		3. hprint -d printer - delete printer from the
+		.hotprinters file.
+
+
+	Communication with Others:
+
+	HotShell allows users to communicate with each other with the
+	following HotShell-specific commands:  htalk and hbwrite.  The
+	following is a brief description of what these utilities do.
+	For a more detailed description and examples of how to use
+	them, see the manual pages for htalk and hbwrite below.
+
+		1. htalk user - talk to another user, even if user is
+		logged in on a different host. Will search local
+		machine, then will check the $HOME/HotShell/.hothosts
+		file  to see other hosts where the user might be logged
+		in, and talk to that user if they are on another
+		server.
+		2. hbwrite user1 user2 . . . usern : broadcast - write
+		a message to multiple users at once.  The message,
+		broadcast, will be sent to each user in the list using
+		Unix's write and then the screen will exit to the next
+		user, etc, until completed.
+
+
+	Managing Work:
+
+	HotShell allows users to manage their work with hstork, hget,
+	hquota, hhog and har.  The following is a brief description of
+	what these utilities do.  For a more detailed description and
+	examples of how to use them, see the manual pages for hhstork,
+	hget, hquota, hhog and har below.
+
+		1. hstork dest - bundles up the users customizations:
+		hotshell, Netscape bookmarks, and personal address
+		book; then, hstork ship the bundle to dest (an e-mail
+		address). When the user invokes the executable bundle,
+		it will unbundle itself and install all the
+		customizations in the new dest in the proper
+		directories, and will send back an email to notify
+		success or failure. Currently, hstork does not bundle
+		all .xxx files because there is such a large number of
+		these that it can become too massive.  To add all .xxx
+		files, fo into hstork and un-comment the line which
+		looks for .xxx files.
+		2. hget file date - reports back what was changed in a
+		given file since date. The file must be under RCS
+		source control in the current directory.
+		3. hquota - shows the five largest files in the current
+		directory.  hquota -r is a recursive hquota on the
+		current directory's subdirectories.  hquota dir runs
+		hquota on the specific directory dir, and hquota -r dir
+		runs a recursive hquota on dir.
+		4. hhog - tells the user which non-root user owns the
+		mosts jobs on the local host. hhog -w will send a
+		message to the user to ask them to quit some
+		processes.
+		5. har harfile file | dir . . .- archives files so that
+		they can be restored or moved to a new location. har
+		creates a file that contains the contents of files in
+		the specified directories and its subdirectories. The
+		bundle  will be in a format of an executable file
+		which, when executed, recreates the directory
+		hierarchy. har preserves the access permissions on all
+		files. There is also an option, -n file, which will
+		allow the user to archive only those files newer than
+		the specified file.
+
+
+	HotShell Distribution:
+
+	HotShell allows users to redistribute the HotShell package and
+	all documentation by using the heds utility.  The following is
+	a brief description of what heds does. For a more detailed
+	description and examples of how to use heds, see the manual
+	page for heds below.
+
+		1. heds dest - bundles all the $HOME/HotShell files and
+		mails the bundle to dest (e-mail address).  It
+		generates a form letter at the beginning of the package
+		which explains to the recipient the contents of the
+		shipment and how to unbundle it.
+		2. When the user follows the instructions, a message is
+		sent back to the sender that indicates whether the
+		software build was successful and reports any problems
+		if encountered.
+		3. heds includes itself in the bundle so that users can
+		forward Hotshell to others, and they will then receive
+		completion messages, and heds will send a carbon copy
+		of the completion message to Harper Langston
+		(harperlangston@gmail.com) as well.
+
+
+Manual Pages:
+	The following are all manual pages for HotShell-specific
+	commands.  To view these pages from within HotShell, type hman
+	hcommand at the hotshell> prompt.  (i.e., hotshell>hman hhog
+	will list the manual page for hhog).  The pages below are
+	listed alphabetically and each hman page is separated by a line
+	of --- marks.
+
+
+
+----------------------------------------------------
+
+User Commands: halias
+
+NAME
+	halias - allows user to assign a name or 'alias' to a command
+	         or group of commands.
+
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	halias [name] [definition]
+	
+
+DESCRIPTION
+        Aliasing is a feature that allows the user to assign a name
+        to a command or a sequence of commands. Variable interpolation
+        is not performed on the definition.  To use an alias, just type
+        it's name at the command line, and it's definition will be 
+        executed. To release an alias use the hunalias command.
+        
+        When halias is invoked without any arguments, all aliases and
+        their definitions are listed.
+        
+        When halias is invoked with one argument, that one argument is
+        supposed to be the name of a previously defined alias.  If the
+        name is in fact an alias, then it's definition is printed.  If
+        it is not the name of an alias, an error message is printed.
+        
+        When halias is invoked with two or more arguments, the first
+        argument is assumed to be the name of a new or previously
+        defined alias and the other arguments are collectively regarded
+        as the definition. halias calls can be invoked on the command 
+        line or placed in the .hotshrc file.
+	
+OPERANDS
+	The following operands are supported:
+
+	name : the name to which the definition will be assigned
+	
+	definition : a command or group of commands
+
+EXAMPLES
+        hotshell>halias
+        No aliases defined
+        hotshell>halias king echo elvis     # king is the new alias
+        hotshell>king
+        elvis
+        hotshell>halias king
+        echo elvis
+        hotshell>halias
+        king  echo elvis
+	
+SEE ALSO
+	hotshrc, hunalias
+	
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  har
+
+NAME
+	har - creates an executable archive of files or directories
+	specified by the user
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/har [ -n file ] harfile dir1 | file1 [
+	dir2 | file2] . . . [ dirn | filen ]
+
+DESCRIPTION
+	har will archive files so that they can be restored or moved to
+	a new location. The program creates a file that contains the
+	files or contents of the specified directories and its
+	subdirectories. The final result is an executable harfile with
+	the name supplied by the user.   When this file is executed by
+	calling its name, it recreates the directory hierarchy,
+	preserving the access permissions on all files and
+	directories.
+	Additionally, there is an option an to archive only those files
+	newer than a specified file (date is according to when the last
+	time the specified file was modified).  If any of the given
+	directories or not valid directories or if any of the files
+	given are not valid files, har will exit and not return any
+	file.  Hence, all files and directories must be valid.
+	Additionally, har should be called from $HOME, passing relative
+	pathnames, and the executable from $HOME so that other users
+	can execute the archived file without problems.  Calling har
+	from $HOME is not necessary, but doing so helps avoid possible
+	conflicts.  See NOTES below for further explanation.
+
+OPTIONS
+	The following options are supported:
+
+	-n file:  Only include files in the archive which are newer
+	than file, according to the modification time of file.
+
+OPERANDS
+	The following operand is supported:
+
+	file:  The path name of a file to be placed in the archive.  It
+	is important that the path name by relative and har be called
+	from $HOME so that if this har file is sent another user, they
+	can execute the harfile from their $HOME directory.  If the -n
+	switch is used and the file to be archived is not newer than
+	the -n file, the file will not be included in the archive.
+
+	directory:  The relative path name (in $HOME) of a directory to
+	be archived.  har will archive all files in this directory as
+	well as all files in the directory's subdirectories.  If the -n
+	switch is used, only files which are newer than the
+	modification time of the specified file will be archived.
+
+	harfile:  The name desired for the executable har file which
+	will include all files and directories.  Upon execution of this
+	harfile, it will restore the files and directories and maintain
+	all original permissions.
+
+EXAMPLES
+	har new_file ./HotShell ./test - Creates an executable file,
+	new_file which contains everything in the HotShell directory
+	and the file test.  har here is called from $HOME
+
+	har new_file -n test new_file ./HotShell - Creates an
+	executable file, which contains everything in the HotShell
+	directory where the files having newer modification times than
+	test.
+
+SEE ALSO
+	tar, hstork, heds, uuencode, uudecode
+
+NOTES/BUGS
+	As specified above, it is important to use relative pathnames
+	and call har from $HOME so that problems are avoided.  An
+	example of this is if the user is in $HOME/HotShell/hcmds and
+	does:
+
+	har new ../../HotShell
+	mv ./new ../../new
+
+	Then, new contains everything in the HotShell directory
+	relative to $HOME/HotShell/hcmds, and when new is moved to the
+	parent directory, it cannot be executed because new will try to
+	place the files in ../../HotShell from $HOME, so it will try to
+	place files in a directory above $HOME which is not allowed.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hbwrite
+
+NAME
+	hbwrite - write to multiple users at once
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hbwrite user1 [ user2 . . . usern ] :
+	broadcast
+
+DESCRIPTION
+	hbwrite allows the user to write a message, broadcast, to
+	multiple users' screens at the same time.  hbwrite loops
+	through the list of users given and looks for them on the
+	current host only and if they are found, sends the message,
+	broadcast, to their screen.  If they are not found on the
+	current host, hbwrite lets the user know that that specific
+	user was not found and continues to loop through the list of
+	users.
+
+	It is necessary that the message broadcast not be enclosed by
+	"" or '' marks.  Additionally, no punctuation in the message
+	should be used (?!%$# etc).
+
+OPERANDS
+	The following operands are supported:
+
+	user1 [ user2 . . . usern ] : List of users to send broadcast
+	message to.
+
+	broadcast: A message to be broadcast; this message should not
+	be enclosed in quotation marks or have any punctuation in it
+	such as ! & * %, etc.
+
+EXAMPLES
+	hbwrite user_123 unixtool : How are you
+
+	Will send the message, How are you, to unixtool and user_123 if
+	they are logged onto the current local host
+
+SEE ALSO
+	write
+
+EXIT VALUES
+	0 - hbwrite to all users successful
+	1 - hbwrite unsuccessful to all
+	2 - hbwrite failed for one or more but not all given users
+
+NOTES/BUGS
+	All users to hbwrite to must be on the current local host.
+
+	The message, broadcast, cannot contain any quotation or
+	punctuation marks.  For example,
+	"How are you"
+	is invalid while
+	How are you
+	is valid
+
+	Another example:
+	How are you?
+	will fail because of the ? mark
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hcgrep
+
+NAME
+	hcgrep - a context grep which takes a directory
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hcgrep pattern directory
+
+DESCRIPTION
+	hcgrep is a context-based grep which is given a pattern and a
+	directory.  hcgrep searches the given directory and its
+	subdirectories for the pattern in all of the directory's and
+	its subdirectories' files.  If a file contains that pattern,
+	hcgrep returns up to two lines above where the pattern was
+	found and up to two lines below.  If the match is at the top or
+	bottom of the file, then either one or no lines above or below
+	will be returned.
+
+OPERANDS
+	The following operands are supported:
+
+	pattern:  The pattern the user is interested in looking for
+
+	directory:  The directory where we are looking for the
+	pattern.  hcgrep will search all files in this directory for
+	pattern as well as all subdirectories.
+
+EXAMPLES
+	The following is an example session using hcgrep.  First, we
+	create a test file and then hcgrep for a pattern to show sample
+	output:
+
+	hotshell>ls -l > test
+	hotshell>echo monkey >> test
+	hotshell>date >> test
+	hotshell>echo "I like soup!" >> test
+	hotshell>
+	hotshell>hcgrep monkey ./
+	----------------------------------------------------------------------
+	-rwx------   1 new_user   6126       31120 Nov 27 17:12 hotshell
+	-rw-------   1 new_user   6126           0 Nov 28 03:32 test
+	monkey
+	Tue Nov 28 03:32:58 EST 2000
+	I like soup!
+	----------------------------------------------------------------------
+
+
+SEE ALSO
+	grep, egrep, hrgrep
+
+
+NOTES/BUGS
+	Currently, hcgrep does not return the name of the file where
+	the pattern was found along with the matched context lines.
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands: hcryptmail
+
+NAME
+	hcryptmail - send encrypted mail
+
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hcryptmail file password e-mail
+
+DESCRIPTION
+	hcryptmail will encrypt a file using password as the key and
+	mail it using hmail to the e-mail address.
+
+OPERANDS
+	The following operands are supported:
+	
+	file     : the file to be encrypted.
+	
+	password : the key used by the encryption algorithm.
+	
+	e-mail   : the address to which the encrypted message will
+	           be sent.
+
+EXAMPLES
+        hotshell>encryptmail secretfile elvis ep@nashville.com
+        
+        secretfile will be encrypted using elvis as a key and
+        sent to ep@nashville.com.
+	
+SEE ALSO
+	hmail
+	
+	
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands: hdirs
+
+NAME
+        hdirs - display the contents of the directory stack
+	       
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hdirs
+
+DESCRIPTION
+        hdirs displays the contents of the directory stack. The 
+        top of the stack is the leftmost directory.  The '~' 
+        represents the home directory. Therefore, an entry such
+        as ~/foo would be the same as $HOME/foo
+        
+EXAMPLES
+        hotshell>hdirs
+        ~/HotShell
+        hotshell>hpushd hcmds
+        ~/HotShell/hcmds  ~/HotShell
+        hotshell>hdirs
+        ~/HotShell/hcmds  ~/HotShell
+        		
+SEE ALSO
+	hdirs, hpopd, hpushd
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  heds
+
+NAME
+	heds - HotShell Electronic Distribution
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/heds <e-mail address>
+
+DESCRIPTION
+	heds is an electronic distribution program for the hotshell
+	implementation.  heds bundles all of the files and directories
+	in $HOME/HotShell, including heds itself and all documentation
+	(design document, user guide, etc), using har, and then mails
+	this package to the e-mail address specified.  A form letter is
+	generated at the beginning of the e-mail which describes how to
+	install HotShell as well as where to look for the user guide
+	for more information and tutorials after installation.
+	Additionally, heds sends a message back to the receiver after
+	the addressee has run the installation.  This letter will tell
+	the sender if the installation was successful, and if not, it
+	will send a message that the installation was unsuccessful.
+
+	Users who have installed HotShell can use heds to forward
+	HotShell to anyone they choose, and a message of successful
+	completion will be forwarded to the them as well as the
+	originator of the software.
+
+
+OPERANDS
+	The following operand is supported:
+
+	e-mail:  The e-mail address the sender is sending the HotShell
+	distribution to.
+
+EXAMPLES
+	heds user@cs.nyu.edu - will bundle $HOME/HotShell and send it
+	to user@cs.nyu.edu, generating a form letter on how to install
+	HotShell.
+
+SEE ALSO
+	tar, hstork, har, mail, uuencode, uudecode
+
+NOTES/BUGS
+	heds can be run from any directory since the heds script
+	changes to $HOME and performs all actions from there.
+
+	Currently, heds can only send successful completion messages
+	back to users who are on the same system as the addressee.  For
+	example, if user@cs.nyu.edu uses heds to send HotShell to
+	user@cs.stanford.edu, user@cs.nyu.edu will not receive a message
+	upon installation, but user@cs.nyu.edu will receive a message
+	if they send HotShell to user2@cs.nyu.edu or anyone at
+	courant.nyu.edu.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  henv    
+
+NAME
+	henv - display environment variables
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	henv
+
+DESCRIPTION
+        henv displays all environment variables that have been set.
+        One page of variables is displayed at a time. To view the
+        next entry, hit the 'enter' key.  To view the next page of
+        variables, hit the 'space bar'.
+
+EXAMPLES
+	hotshell>henv
+	HOME=/home/john123
+	HOST=sparky
+	HZ=100
+	LANG=C
+	..
+	SHELL=/bin/csh
+	TERM=vt100
+	..
+		
+SEE ALSO
+	hsetenv, hunset, hunsetenv
+
+	
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hget
+
+NAME
+	hget - retrieve the differences in a file since a given date
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hget file date (yyyy/mm/dd)
+
+DESCRIPTION
+	hget allows a user to look at the changes in a file since a
+	given date.  It is assumed that the file is under a source
+	control mechanism, namely RCS in this case.  The date must be
+	declared in the following format:  yyyy/mm/dd.  You must be in
+	the current directory in which there is an RCS directory,
+	containing information for the file requested.  An example
+	session of using RCS and hget are given below under EXAMPLES
+
+OPERANDS
+	The following operands are supported:
+
+	file:  The name of the file being looked at.  This file should
+	not reside in the current directory; however, there should be
+	an entry in the RCS directory in the current directory for
+	file.
+
+	date:  given in the format, yyyy/mm/dd, hget will retrieve the
+	most recent version of file from on or before date and compare
+	it to the most recent version.
+
+EXAMPLES
+	Since hget will return nothing when using a new file, the
+	following is an example of using RCS to force a checkin of a
+	file with a given modification date instead of the current
+	date.  First, we make an RCS directory, use co and ci to
+	checkout and checkin the file test (note ci uses the forced
+	date mechanism).  This will allow the use of hget to show how
+	it works:
+
+	hotshell>pwd
+	/home/new_user/HotShell/testing
+	hotshell>mkdir RCS
+	hotshell>date > test
+	hotshell>ci -d2000/11/20 test
+	RCS/test,v  <--  test
+	enter description, terminated with single '.' or end of file:
+	NOTE: This is NOT the log message!
+	>> New file, test, with a forced checkin of 2000/11/20
+	>> .
+	initial revision: 1.1
+	done
+	hotshell>
+	hotshell>co -l test
+	RCS/test,v  -->  test
+	revision 1.1 (locked)
+	done
+	hotshell>ls -l >> test
+	hotshell>ci -d 2000/11/28 test
+	ci: 2000/11/RCS/28: No such file or directory
+	RCS/test,v  <--  test
+	new revision: 1.2; previous revision: 1.1
+	enter log message, terminated with single '.' or end of file:
+	>> Added ls -l line to bottom of test
+	>> .
+	done
+	hotshell>
+	hotshell>hget test 2000/11/21
+	Using RCS to retrieve most recent version of test
+	RCS/test,v  -->  test
+	revision 1.2
+	done
+	Using RCS to retrieve latest version of test on or before
+	2000/11/21
+	RCS/test,v  <--  test
+	ci: RCS/test,v: no lock set by new_user
+	RCS/test,v  -->  test
+	revision 1.1
+	done
+
+	Showing differences since 2000/11/21 in test using diff
+	Newest version is first file.  See diff for explanation
+
+	2,4d1
+	< total 4
+	< drwx------   2 new_user   6126         512 Nov 28 02:40 RCS
+	< -rw-------   1 new_user   6126          29 Nov 28 02:40 test
+
+
+SEE ALSO
+	diff, rcs, co, ci, rlog, rcsdiff
+
+EXIT VALUES
+	0 - hget was successful and differences were found and reported
+	in versions
+	1 - No RCS directory in the current directory
+	2 - Two arguments not given as needed
+	3 - date (yyyy/mm/dd) in wrong format
+	4 - file is in the current directory, so must either be checked
+	in or deleted
+	5 - RCS could not find an entry for file
+	6 - RCS could not find an entry for file before date
+	7 - hget found entries, but there were no differences in
+	versions
+
+NOTES/BUGS
+	It is important to have an understanding of RCS before
+	attempting to use this command properly.  The RCS source
+	control setup must already be in place.
+
+	Currently, some bogus dates can slip through such as 2000/00/00
+	and 2000/19/39 and not caught gracefully by hget.  RCS will
+	catch them and return its error message. This is being worked
+	on and should be fully repaired by HotShell 1.2
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands: hhistory
+
+NAME
+	hhistory - manipulates commands stored in the .hhistory file 
+
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in commands)
+	hhistory [number]
+        ^pattern^string
+        !n:s/pattern/string/
+        !n:gs/pattern/string/
+        !n
+        !!
+        
+DESCRIPTION
+        The hhistory mechanism stores commands in a list in the 
+        .hhistory file.  This enables users to avoid repetitive
+        typing and also makes the saved commands available for 
+        later use in a variety of ways.
+        
+        hhistory with no arguments simply displays the contents of
+        the .hhistory file.  The number of commands that are saved
+        can be changed by utilizing the hsethhistory command.  The
+        default value is 10.
+        
+        hhistory can also take one argument in which case it will
+        only display up to 'number' previous commands.
+        
+        The ^pattern^string editing feature allows the user to 
+        substitute 'string' for the first instance of 'pattern' found
+        in the previous command, and then the modified command is 
+        executed.
+        
+        The !n:s/pattern/string/ editing feature is a more general
+        version of the previous utility.  The 'string' is substituted
+        for the first instance of 'pattern' in command number n and
+        the modified command is executed. Also, !n:gs/pattern/string/
+        performs the substitution on all instances of the pattern.
+        
+        !n will repeat command number n.
+        
+        !! repeats the previous command.
+               
+OPERANDS
+	The following operands are supported:
+	
+	number : Used with the hhistory command to display only a 
+	         portion of the hhistory list.
+
+EXAMPLES
+        hotshell>hhistory              # display all saved commands
+	    1     echo one
+	    2     echo two two
+	    3     echo three three three
+            4     hhistory
+        hotshell>hhistory 2            # display last two commands
+            4     hhistory
+	    5     hhistory 2
+	hotshell>echo elvis presley
+	elvis presley
+	hotshell>^presley^costello     # substitution in last command
+	echo elvis costello
+	elvis costello
+	hitshell>!2:s/two/thirty/      # substitution in command 2
+	echo thirty two
+	thirty two
+	hotshell>!3                    # repeat command 3
+	echo three three three
+	three three three
+	hotshell>!!                    # repeat last command
+	echo three three three
+	three three three
+	
+SEE ALSO
+	hsethhistory
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hhog
+
+NAME
+	hhog - find which non-root user is running the most processes
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hhog [ -w ]
+
+DESCRIPTION
+	hhog alerts the user which non-root user is currently running
+	the most processes on the current host machine.  It also tells
+	the number of processes being run by the user running the most
+	processes.
+
+	hhog -w will find the user running the most processes and will
+	send a polite message to this user, using mail, asking them to
+	quit some of their processes.
+
+OPTIONS
+	The following options are supported:
+
+	-w: Using hhog with this option will find the non-root user
+	running the most processes and send a polite e-mail message to
+	them, asking them to quit some of their processes
+
+EXAMPLES
+	%hhog
+	new_user is running the most jobs:  27 jobs
+
+	%hhog -w
+	Sending mail to new_user
+
+SEE ALSO
+	ps, mail
+
+NOTES/BUGS
+	hhog only looks at the current sever that the $USER is logged
+	into and running hhog from.
+
+	Also, run hhog first and check who the user running the most
+	processes is; hhog -w may send a message to an irritable
+	professor if you are not careful.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands: hmail 
+
+NAME
+	hmail - contains various features for sending mail
+        
+SYNOPSIS
+	$HOME/HotShell/hcmds/hmail [options]
+
+DESCRIPTION
+        hmail: without any arguments brings up the following menu for 
+        a personal address book. 
+        
+        Address Book Menu 
+	Please select one of the following options:
+	1) Add new user
+	2) Delete user
+	3) Display user information
+	4) Display list of all users in address book
+        5) Quit
+        
+        hmail -n user: Mail notification feature.  It checks if new 
+        mail has arrived from a specified user.  The user's name is  
+        looked up in the address book to determine if his or her e-mail 
+        address has been saved. 
+        
+        hmail -l user:  Send mail base on login name
+        hmail -u user:  Send mail based on user name
+        hmail -nn user: Send mail based on nickname
+        
+        For the -l and -nn options, the address book is searched and 
+        the first match of a login name or nickname is used. For all
+        three options, user should enter the subject, cc and then
+        the body of the message.  Type control-d when finished.
+        
+        hmail file email_addres: sends the text of file to the given
+        e-mail address.  
+        
+        hmail forward new_email_add: If you have changed your e-mail
+        address, your new messages will be forwarded and a message will
+        be sent to the each sender alerting them to the change.
+        
+        hcryptmail file password email_add: Encrypts the file using 
+        the password as a key and then mails it using hmail to the 
+        recipient.
+        
+EXAMPLES
+        hotshell>hmail              # brings up the personal address       
+                                    #  menu
+                                    
+        hotshell>hmail -n betty     # if new mail has arrived from
+                                    # betty there will be a 
+                                    # notification
+                                    
+        hotshell>hmail forward new@123.com  # new mail will be forwarded
+                                    # to new@123.com and sender will
+                                    # be notified of the new e-mail
+                                    # address   
+                                    
+        hcryptmail buzz bee bug@honey.com  # buzz will be encrypted using
+                                    # bee as a key and the new message
+                                    # will be mailed to bug@honey.com
+                                    # using hmail
+        
+SEE ALSO
+        mail, mailx
+	
+NOTES/BUGS
+        The feature to store messages in folders was not implemented yet.
+        It will be available in HotShell 1.2.
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hman
+
+NAME
+	hman - display manual page for a HotShell specific command
+
+SYNOPSIS
+	$HOME/HotShell/hman hcommand
+
+DESCRIPTION
+	hman searches for and displays the manual pages for the
+	HotShell-specific commands.  All such manual pages are listed
+	in $HOME/HotShell/hmanpgs.  hman uses the Unix more command to
+	view each hman page.
+
+OPERANDS
+	The following operands are supported:
+
+	hcommand:  HotShell command whose manual page the user wishes
+	to view
+
+EXAMPLES
+	hman heds - displays the manual page for heds
+	hman hquota - displayes the manual page for hquota
+
+SEE ALSO
+	man, more
+
+NOTES/BUGS
+	To view the manual page for a HotShell-specific command, hman
+	must be used; man will not return a valid result.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hotshell
+
+NAME
+	hotshell - a new shell
+        
+SYNOPSIS
+	$HOME/HotShell/hotshell
+
+DESCRIPTION
+        A new shell which contains the following features:
+       
+        Support For The Following Command Forms:
+        
+        - simple commands 
+        - multiple commands cmd1; cmd2;  
+        - command grouping (cmd1; cmd2; cmd3) 
+        - background commands cmd & 
+        - pipes cmd1 | cmd2 . 
+        - Command substitution cmd1 `cmd2` 
+        - Use of wildcard for file name abbreviation 
+        - Here documents 
+        - Redirection of stdin and stdout (<, >, >>) 
+        - subshell hotshell : $ hotshell 
+        
+        Shell Customization  
+	
+	- .hotshrc file used for all aliases, defaults, and variables 
+	- hpushd, hpopd implemented with a circular stack.  The default
+	  size is 10.  The size can be altered using the command hsetsize
+	  entered at the prompt or placed within the .hothsrc file.
+	
+	Shell Variables
+	
+	- User can set and unset environment as well as user-defined 
+	  variables
+	  
+	Managing The Command Path 
+	
+	- whereis
+	- file
+	- type
+	- aliasing
+	- unaliasing
+	
+        Command History 
+        
+        - Command line editing
+        - .hhistory file used to save command list
+	
+SEE ALSO
+	halias, hcryptmail, hdirs, henv, hhistory, hmail, hotshrc, 
+	hpopd, hpushd, hsetenv, sethhistory, hsetsize, hshowvars,
+	hunalias, hunset, hunsetenv
+	
+NOTES/BUGS
+        Background processing: The child PID is printed but there is
+        no acknowledgement of the death of the child. Kill does not
+        display any message.
+ 
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hotshrc    
+
+NAME
+	hotshrc - reloads the .hotshrc file
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hotshrc
+
+DESCRIPTION
+        The .hotshrc file is used for customization.  It stores aliases, 
+        defaults and variables.  It's values are loaded automatically
+        once when hotshell is invoked and once for each hotshell
+        subshell.  Therefore, if the user were to add new entries to 
+        the .hotshrc file, those changes would not be visible to the 
+        current hotshell.  In order for the current hotshell to 'see' 
+        those changes the .hotshrc file would have to be reloaded.  The 
+        hotshrc command reloads the .hotshrc file.
+
+EXAMPLES
+        Assume that the .hotshrc file is empty when hotshell is invoked.
+        
+        hotshell>echo $king
+        king: Undefined variable
+        hotshell>halias
+        No aliases defined
+        
+        now use a text editor to add the following two lines to the
+        .hotshrc file:
+        
+        $king = elvis
+        halias sing echo my teddybear
+        
+        hotshell>hotshrc                     # load the new values
+        hotshell>echo $king
+        elvis
+        hotshell>sing
+        my teddybear
+		
+SEE ALSO
+	halias, hotshell, hsetenv, hsethhistory, hsetsize 
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands: hpopd
+
+NAME
+        hpopd - manipulates directory stack
+	       
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hpopd [+n]
+
+DESCRIPTION
+        hpopd removes directories from the directory stack. The
+        directory stack allows users to keep track of multiple
+        directories and to switch between them easily.
+        
+        hdirs displays the contents of the directory stack. The 
+        top of the stack is the leftmost directory.  The '~' 
+        represents the home directory. Therefore, an entry such
+        as ~/foo would be the same as $HOME/foo.  The top of the
+        stack always contains the current working directory. 
+        Directories are added to the stack with the hpushd function.       
+        
+        hpopd with no arguments removes the top directory from the
+        stack. It then changes the current working directory to
+        whatever directory is now sitting on top of the stack.
+        
+        hpopd +n removes the nth directory.  Begin counting at 0.
+        Note that n must be one or more.      
+        
+OPERANDS
+        The following operands are supported:
+        
+        n  :  hpopdd +n removes the nth directory from the directory
+              stack
+        
+EXAMPLES
+        hotshell>hdirs                  # display directory stack
+        ~/HotShell
+        hotshell>pwd
+        /home/john123/HotShell
+        hotshell>hpushd hcmds           # push hcmds onto the stack
+        ~/HotShell/hcmds  ~/HotShell
+        hotshell>hpopd +1               # remove 1st dir. from stack
+        ~/HotShell                      # counting from 0
+        		
+SEE ALSO
+	hdirs, hpushd
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hprint
+
+NAME
+	hprint - will send a job to a specified printer and wait for a
+	specified time, and if the job has not become active, it will
+	move the job to a new printer.
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hprint [ -a printer ] | [ -d printer ] | [
+	printer file [time (in seconds)]]
+
+DESCRIPTION
+	hprint will send a file to the specified printer.  If a time is
+	given, hprint will wait for that time in seconds, and if the
+	job has not become active, it will look for new printers, find
+	the smallest queue, and move that job there.  hprint uses the
+	file $HOME/HotShell/.hotprinters to look for possible printers;
+	the given printer is also searched since it may have the
+	smallest queue.  If time is not given, hprint acts like lpr,
+	simply putting your job in the queue of the given printer.
+
+	The initial call to hprint must use a printer which is in
+	.hotprinters.  If this printer is not in the .hotprinters file,
+	an error message will be generated.  However, a printer can
+	easily be added to the .hotprinters file by using the command:
+	hprint -a printer.  Additionally, a printer can be removed from
+	the .hotprinters file by running hprint -d printer.  See
+	EXAMPLES below for examples of how each of these commands
+	works.
+
+OPTIONS
+	The following options are supported:
+
+	-a printer:  Add printer to the .hotprinters file.  If printer
+	is already in .hotprinters, it will not be added.
+
+	-d printer:  Delete printer from the .hotprinters file.  If
+	printer is not in .hotprinters, it will not be deleted, and an
+	error message will be generated.
+
+OPERANDS
+	The following operands are supported:
+
+	printer job [ time (in seconds)]:
+	send file, job, to printer, and wait for time if specified to
+	see if job has become active.  If so, job will be printed at
+	printer.  Otherwise, hprint will loop through the .hotprinters
+	file, looking for the smallest queue, remove job from the queue
+	of printer and place it in the new smallest queue.
+
+EXAMPLES
+	hotshell>hprint -a nhp66
+	Adding printer nhp66 to your .hotprinters file
+
+	hotshell>hprint -d nhp67
+	nhp67 not in .hotprinters.  Cannot delete.
+
+	hotshell>hprint -d nhp66
+	Removing nhp66 from .hotprinters
+
+	hotshell>hprint nhp33 test 5
+	Printer not in .hotprinters
+	To use this printer, type hprint -a printer and try again.
+
+	hotshell>hprint -a nhp33
+	Adding nhp33 to your .hotprinters file
+
+	hotshell>hprint nhp33 test 5
+	Printing test to printer:  nhp33
+	Job test has not printed after 5 seconds at nhp33.
+	First removing test from nhp33
+	nhp33-988: cancelled
+	Searching nhp7 . . .
+	Searching nhp15 . . .
+	Searching nhp33 . . .
+	nhp7 had smallest printer queue
+	Now printing to nhp7
+
+FILES
+	hprint is dependent on the $HOME/HotShell/.hotprinters file
+	which contains a list of user-defined printers.  Each row
+	contains one printer, and this file can be edited using the -a
+	and -d switches describe above.  To view its contents, type:
+	more $HOME/HotShell/.hotprinters
+
+EXIT VALUES
+	0 - hprint was successful
+	1 - hprint unsuccessful
+
+SEE ALSO
+	lpr, lpq, lprm
+
+NOTES/BUGS
+	A call to hprint printer job must use a printer in the
+	.hotprinters file.  If it is not a valid printer, an error
+	message will be generated, describing how to add this printer
+	to .hotprinters if desired.
+
+	To view the contents of the .hotprinters file, type cat
+	$HOME/HotSHELL/.hotprinters
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands: hpushd
+
+NAME
+        hpushd - manipulates directory stack
+	       
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hpushd [+n]
+	hpushd [directory]
+
+DESCRIPTION
+        hpushd pushes directories onto the directory stack. The
+        directory stack allows users to keep track of multiple
+        directories and to switch between them easily.
+        
+        hdirs displays the contents of the directory stack. The top
+        of the stack is the leftmost directory.  The '~' represents
+        the home directory. Therefore, an entry such as ~/foo would 
+        be the same as $HOME/foo.  The top of the stack always
+        contains the current working directory. Directories are
+        removed from the stack with the hpopd function.      
+        
+        hpushd with no arguments switches the top two entries on the
+        stack. It then changes the current working directory to
+        whatever directory is now sitting on top of the stack.
+        
+        hpushd +n rotates the nth directory to the top of the stack. It 
+        then changes the current working directory to new directory.
+        Begin counting at 0. Note that n must be one or more. 
+        
+        hpushd directory pushes directory onto the stack and makes that
+        directory the current working directory.
+        
+OPERANDS
+        The following operands are supported:
+        
+        n  :  hpopdd +n removes the nth directory from the directory
+              stack
+              
+        directory :  pushes that directory onto the stack and makes it
+                     the current working directory.
+        
+EXAMPLES
+        hotshell>hdirs                  # display directory stack
+        ~/HotShell
+        hotshell>pwd
+        /home/john123/HotShell
+        hotshell>hpushd hcmds           # push hcmds onto the stack
+        ~/HotShell/hcmds  ~/HotShell
+        hotshell>hpushd                 # switch the top two entries
+        ~/HotShell  ~/HotShell/hcmds    # on the stack
+        hotshell>hpushd data
+        ~/HotShell/data  ~/HotShell  ~/HotShell/hcmds
+        hotshell>hpushd +2              # rotate directory 2 onto top
+        ~/HotShell/hcmds  ~/HotShell/data  ~/HotShell      # of stack	
+        
+SEE ALSO
+	hdirs, hpopd
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hquota
+
+NAME
+	hquota - finds the five largest files in your directory
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hquota [ -r ] [ directory ]
+
+DESCRIPTION
+	hquota will find the five largest files in your directory,
+	including all .xxx files (uses ls -a).  If hquota is called
+	without any options, it will do a non-recursive search on the
+	current directory you are in.  Other options include using the
+	-r switch which will do a recursive search on your directory.
+	If a directory is given, hquota will look in that directory,
+	recursively or non-recursively, according to desire.  See
+	EXAMPLES below for samples.
+
+OPTIONS
+	The following options are supported:
+
+	-r:  recursive hquota.  Looks for five largest files in your
+	directory and its subdirectories.
+
+OPERANDS
+	The following operands are supported:
+
+	directory:  If a directory is given, hquota works on that
+	directory, returning the five largest files in that directory
+	or in that directory and its subdirectories, according to
+	whether -r is used or not.  If a directory is not given, hquota
+	works on the current directory.
+
+EXAMPLES
+	hotshell>pwd
+	/home/new_user/HotShell/hcmds
+	hotshell>hquota
+	-rwx------   1 new_user   6126        4429 Nov 27 14:10 heds
+	-rwx------   1 new_user   6126        3748 Nov 21 15:22 hprint
+	-rwx------   1 new_user   6126        3354 Nov 27 13:40 har
+	-rw-------   1 new_user   6126        3039 Nov 27 15:19
+	hquota.txt
+	-rw-------   1 new_user   6126        2170 Nov 27 15:43
+	#hquota.txt#
+	hotshell>
+	hotshell>hquota $HOME
+	-rw-------   1 new_user   6126      486409 Nov  2 11:51 inst
+	-rw-------   1 new_user   6126      393361 Oct 10 16:26
+	.xsession-errors
+	-rw-------   1 new_user   6126      117118 Oct 12 17:34
+	457-503.ps
+	hotshell>
+	hotshell>hquota -r $HOME
+	-rw-------   1 new_user   6126     1082794 Nov 22 13:27 sent-mail
+	-rw-------   1 new_user   6126      602112 Nov 27 15:47
+	history.dat
+	-rw-------   1 new_user   6126      486409 Nov  2 11:51 inst
+	-rw-------   1 new_user   6126      393361 Oct 10 16:26
+	.xsession-errors
+	-rw-r--r--   1 new_user   6126      256710 Sep 22  1999 stuff
+
+SEE ALSO
+	ls, sort, head
+
+NOTES/BUGS
+	hquota looks at all files and directories in your directory
+	using ls -a.  So, .xxx files and directories can possibly be
+	one of the five largest files.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hrgrep
+
+NAME
+	hrgrep - hrgrep is a recursive grep which searches for a
+	pattern recursively under a directory tree
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hrgrep pattern [ directory ]
+
+DESCRIPTION
+	hrgrep is a recursive grep which takes a pattern and returns
+	every occurrence of that pattern in a directory tree.  A
+	specific directory can be given, or if a directory is not given,
+	hrgrep will do a recursive grep from the current directory.  If
+	the pattern is not found, "No match" is returned.  Otherwise, a
+	list of every occurrence is outputted.
+
+OPERANDS
+	The following operands are supported:
+
+	pattern:  Pattern user is looking for.
+
+	directory:  directory to do a recursive grep for pattern on.
+	If no directory is given, hrgrep runs on the current directory
+	from which hrgrep is being called.
+
+EXAMPLES
+	The following are examples of how to run hrgrep.  You can run
+	them yourself to see sample output:
+
+	hrgrep hr (equivalent to hrgrep hr . )
+
+	hrgrep hr $HOME/bin
+
+EXIT VALUES
+	0 - hrgrep successful
+	1 - hrgrep unsuccessful
+
+SEE ALSO
+	grep, hcgrep, egrep, find
+
+NOTES/BUGS
+	Currently, hrgrep returns all lines which matched, but it does
+	not return filenames of those files with matched lines.  It is
+	good for an initial grep to look for a pattern in a directory
+	tree somewhere.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hrm
+
+NAME
+	hrm - moves files to $HOME/HotShell/.htrash, which can be
+	emptied on demand using -e option
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hrm -e | file1 [ file2 . . . filen ]
+
+DESCRIPTION
+	hrm moves files to the .htrash directory, located at
+	$HOME/HotShell/.htrash.  Multiple files and wildcards can be
+	used to hrm files.  Additionally, the switch, -e, allows users
+	to empty .htrash on demand.
+
+OPTIONS
+	The following options are supported:
+
+	-e:  empty $HOME/HotShell/.htrash
+
+OPERANDS
+	The following operands are supported:
+
+	file(s):  One or more files, or a wildcard for files which the
+	user wants to move to the .htrash directory for eventual
+	removal.
+
+EXAMPLES
+	hotshell>hrm junk1 junk2
+	hotshell>hrm junk?
+	hotshell>hrm -e
+
+SEE ALSO
+	rm
+
+NOTES/BUGS
+	If a file with the same name already exists in
+	$HOME/HotShell/.htrash of the name you would like to hrm, the
+	file in $HOME/HotShell will be overwritten and replaced with
+	the new file by the same name.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hsetenv    
+
+NAME
+	hsetenv - set an environment variable
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hsetenv $VARNAME  [$]value
+	(note: value can also be a variable)
+
+DESCRIPTION
+        hsetenv sets an environment variable.  In order to set an
+        environment variable in hotshell, the following syntax is
+        used: hsetenv $VARNAME  [$]value  
+        (note: value can be a variable name or a string)
+        
+        By convention, environment variable names are all in 
+        uppercase letters.  All variables in hotshell begin with 
+        dollar signs.  Environment variables are visible to subshells
+        (user-defined variables are not).  hsetenv calls can be  
+        invoked on the command-line or placed in the .hotshrc file.
+        hsetenv verifies that the variable name begins with a '$'
+        
+OPERANDS
+        The following operands are supported:
+        
+        $VARNAME : The name of the environment variable to be set.
+                   By convention, environment variable names are  
+                   all in uppercase letters
+        [$]value : The value assigned to the environment variable.
+                   'value' can be a string or another variable.
+
+        All variable names must begin with a '$'.
+        
+EXAMPLES
+	hotshell>echo $FOO
+	FOO: Undefined variable
+	hotshell>hsetenv $FOO algebra    # set environment variable
+	hotshell>echo $FOO
+	algebra
+	hotshell>echo $bar
+	bar: Undefined variable
+	hotshell>$bar = ice              # set user-define variable
+	hotshell>echo $bar
+	ice
+	hotshell>hotshell                # call a hotshell subshell
+	hotshell>echo $FOO
+	algebra                          # $FOO visible to subshell
+	hotshell>echo $bar
+	bar: Undefined variable          # $bar invisible to subshell
+		
+SEE ALSO
+	henv, hotshrc, hunset, hunsetenv
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands: hsethhistory
+
+NAME
+        hsethhistory - reset the size of the .hhistory list
+	(default value is 10)
+	
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hsethhistory value
+        (value must be between 1 and 200)
+
+DESCRIPTION
+        hsethhistory resets the size of the hhistory list. The  
+        default value is 10.  The .hhistory saves commands in a list
+        to avoid repetitive typing and to allow the commands to be  
+        reused in different ways later. hsetsize calls can be invoked 
+        on the command-line or placed in the .hotshrc file.        
+        
+EXAMPLES
+       hotshell>hhistory
+           1     echo one
+           2     echo two two
+           3     echo three three three
+           4     hhistory
+       hotshell>hsethhistory 2        # now, .hhistory will only 
+       hotshell>hhistory              # contain the previous two   
+           5     hsethhistory 2       # commands entered
+           6     hhistory
+           
+SEE ALSO
+	hhistory
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands: hsetsize
+
+NAME
+        hsetsize - reset size of directory stack 
+	(default value is 10)       
+	       
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hsetsize value
+        (value must be between 1 and 100)
+
+DESCRIPTION
+        Resets the size of the directory stack. It's default value is 
+        10. Allows the user to determine how many directory changes
+        are saved. Note: if the user resets the size of the directory 
+        stack, the stack itself is cleared and the only value it 
+        contains will be the current working directory.  hsetsize calls  
+        can be invoked on the command-line or placed in the .hotshrc
+        file.
+        
+OPERANDS
+	The following operands are supported:	
+	
+	value : a number between 1 and 100 that will represent the
+	        maximum number of directories that can be stored on
+	        the directory stack.
+
+EXAMPLES
+        hotshell>hsetsize 20
+        
+        The directory stack will now store up to 20 directory changes.
+		
+SEE ALSO
+	hdirs, hpopd, hpushd
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hshowvars    
+
+NAME
+	hshowvars - display user-defined variables and their values
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hshowvars
+
+DESCRIPTION
+        hshowvar displays all user-defined variables that have been
+        set.
+        
+EXAMPLES
+	hotshell>hshowenv
+	name = mary
+	book = jaws
+	team = mets
+	city = chicago
+	..
+		
+SEE ALSO
+	henv, hsetenv, hunset, hunsetenv
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hstork
+
+NAME
+	hstork - bundles up customizations and sends them to e-mail
+	address specified
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hstork e-mail address
+
+DESCRIPTION
+	hstork bundles up your favorite customizations and mails them
+	to e-mail address specified.  Currently, hstork only bundles up
+	the user's .netscape/bookmarks.html file, the .addressbook
+	file, and everything under HotShell.  See under NOTES for
+	reasoning and explanations.
+
+	Once hstork e-mail is called, a bundle will be sent to the
+	e-mail address, containing a file which must be detached, made
+	executable and run from their $HOME directory. No message is
+	sent to the e-mail address other than the attachments, since it
+	is assumed that the user receiving the bundle is aware of how it
+	should be detached, executed and used.  This is due to the fact
+	that usually a user will be using themselves at another e-mail
+	address for the addressee.
+
+OPERANDS
+	The following operands are supported:
+
+	e-mail address:  The e-mail address the hstork bundle should be
+	sent to.
+
+EXAMPLES
+	hstork harperlangston@gmail.com - bundles
+	.netscape/bookmarks.html, HotShell/* and .addressbook from
+	$HOME, maintains all permissions and mails them to
+	harperlangston@gmail.com
+
+SEE ALSO
+	tar, mail, uuencode, uudecode
+
+NOTES/BUGS
+	As noted above, hstork currently only bundles the
+	.netscape/bookmarks.html file, the .addressbook file and the
+	HotShell directory.  It is possible to go into
+	HotShell/hcmds/hstork and easily add more directories or files
+	to add.  One line is commented out which bundles all .xxx
+	files.  The reason for not including these automatically is
+	that often there are quite a few that a user may not
+	necessarily want.  To allow ALL .xxx files to be shipped,
+	remove the # from the front of the line which says: # find
+	$HOME -type f -name ".*" -exec tar rvf htmp.tar {} \;
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  htalk
+
+NAME
+	htalk - talk to another user even if they are logged onto
+	another host
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/htalk user
+
+DESCRIPTION
+	htalk allows a HotShell user to talk to another user even if
+	that user is logged onto another host.  htalk uses the
+	$HOME/HotShell/.hothosts file to determine which hosts should
+	be searched.  First, htalk looks on the current host to see if
+	the user is logged in, and if so, requests a talk session,
+	using talk.  If they are not, htalk loops through the .hothosts
+	file, looking for the user until there are no more hosts to
+	search or the user is found.  If the user is found, a talk
+	session is requested.  Otherwise, htalk exits and alerts the
+	user that the person could not be found.
+
+OPERANDS
+	The following operands are supported:
+
+	user:  The user to look for.  This should be the user's
+	$LOGNAME or $USER value, according to your system.
+
+EXAMPLES
+	In this example, my user name is new_user, and I am on
+	quorum7.nyu.edu, trying to chat with csweb who is normally on
+	spunky.
+
+	hotshell>htalk csweb
+	csweb is not on your local host
+	Searching other hosts from /home/new_user/HotShell/.hothosts
+	Searching quixote.cims.nyu.edu . . .
+	Searching quixote . . .
+	Searching querulous.cims.nyu.edu . . .
+	Searching querulous . . .
+	Searching quean.cims.nyu.edu . . .
+	Searching quean . . .
+	Searching quagmire.cims.nyu.edu . . .
+	Searching quagmire . . .
+	Searching scrappy.cims.nyu.edu . . .
+	Searching scrappy . . .
+	Searching dept.cs.nyu.edu . . .
+	Searching dept . . .
+	Searching spunky.cs.nyu.edu . . .
+	Searching spunky . . .
+	Searching slinky . . .
+	csweb could not be found . . . Maybe later
+
+	If csweb had been logged on, it would have requested a chat
+	session, using talk.
+
+FILES
+	htalk is dependent on $HOME/HotShell/.hothosts which has the
+	same style as /etc/hosts.  To alter this file for your specifc
+	needs, go to $HOME/Hotshell and edit .hothosts using your 
+	favorite editor.
+
+EXIT VALUES
+	0 - htalk successful
+	1 - htalk given wrong number of arguments
+	2 - user could not be found on any hosts
+	3 - .hothosts file does not exist
+
+SEE ALSO
+	talk
+
+NOTES/BUGS
+	If you are not on the courant/cims system, the .hothosts file
+	will have to be edited to look for any host you are interested
+	in.  For the correct format, look at $HOME/HotShell/.hothosts
+	and follow the format inside.
+
+	Even if your local host is not in the .hothosts file, htalk
+	will still first look on your local host and then look in the
+	.hothosts file.
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands: hunalias
+
+NAME
+	hunalias - releases a previously defined alias
+
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hunalias name
+	
+
+DESCRIPTION
+        Aliasing is a feature that allows the user to assign a name
+        to a command or a sequence of commands. Variable interpolation
+        is not performed on the definition.  To use an alias, just type
+        it's name at the command line, and it's definition will be 
+        executed. To release an alias use the hunalias command.
+        
+        hunalias releases a previously defined alias. If the argument
+        is not the name of an alias, an error message is printed.
+	
+OPERANDS
+	The following operand is supported:
+
+	name : the name of the alias which is to be released
+
+EXAMPLES
+        hotshell>halias
+        No aliases defined
+        hotshell>halias king echo elvis     # king is the new alias
+        hotshell>halias
+        king  echo elvis
+        hotshell>hunalias king
+        hotshell>halias
+        No aliases defined       
+	
+SEE ALSO
+	hotshrc, halias
+	
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hunset    
+
+NAME
+	hunset - unset a user-defined variable
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hunset $variable
+
+DESCRIPTION
+        hunset unsets a user-defined variable.  In order to set a
+        user-defined variable in hotshell, the following syntax is
+        used: $variable = [$]value 
+        (Note: value can be a variable name or a string)
+        
+        All variables in hotshell begin with dollar signs. If an 
+        attempt is made to hunset a varible that was not previously
+        set, and appropriate error message will be displayed. hunset
+        also verifies that the variable name begins with a '$'.
+        
+OPERANDS
+        The following operand is supported:
+        
+        $variable : The name of the variable to be unset.
+
+        The variable name must begin with a '$'.
+        
+EXAMPLES
+	hotshell>echo $foo
+	foo: Undefined variable
+	hotshell>$foo = 25
+	hotshell>echo $foo
+	25
+	hotshell>hunset $foo
+	foo: Undefined variable
+	hotshell>hunset foo
+	foo: Invalid variable name
+	Usage: unset $name
+		
+SEE ALSO
+	henv, hsetenv, hunsetenv
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+User Commands:  hunsetenv    
+
+NAME
+	hunsetenv - unset an environment variable
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hunsetenv $VARNAME  
+
+DESCRIPTION
+        hsetenv unsets an environment variable.  In order to set an
+        environment variable in hotshell, the following syntax is
+        used: hsetenv $VARNAME  [$]value  
+        (note: value can be a variable name or a string) 
+        
+        By convention, environment variable names are all in 
+        uppercase letters.  All variables in hotshell begin with 
+        dollar signs.  Environment variables are visible to subshells
+        (user-defined variables are not).  
+        
+OPERANDS
+        The following operand is supported:
+        
+        $VARNAME : The name of the environment variable to be set.
+                   By convention, environment variable names are  
+                   all in uppercase letters.
+
+        All variable names must begin with a '$'.
+        
+EXAMPLES
+	hotshell>echo $FOO
+	FOO: Undefined variable
+	hotshell>hsetenv $FOO algebra   # set environment variable
+	hotshell>echo $FOO
+	algebra
+	hotshell>hunsetenv $FOO         # unset environment variable
+	hotshell>echo $FOO
+	FOO: Undefined variable
+		
+SEE ALSO
+	henv, hotshrc, hunset, hsetenv
+
+
+
+----------------------------------------------------
+
+
+This concludes the User and Installation Guide for HotShell.  For more information
+on how features were implemented, please see the HotDesignDoc.txt
+in the HotShell/hdesign folder, a document designed for other
+deisgners and developers of Unix tools.
+
