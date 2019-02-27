@@ -1,0 +1,99 @@
+#!/bin/ksh
+if [ -f $HOME/htmp.tar ]
+then
+ 	rm $HOME/htmp.tar
+fi
+if [ -f $HOME/htmp2.tar ]
+then 
+	rm $HOME/htmp2.tar
+fi
+
+if [ $# -ne 1 ]
+then
+	echo "heds: Incorrect usage"
+	echo "Usage: heds <e-mail address>"
+	exit 1
+fi
+
+#change to Home for relative locations of files
+cd $HOME
+echo "Now Bundling HotShell to send to $1 . . . "
+# Put HotShell in a har file
+./HotShell/hcmds/har htmp.tar ./HotShell
+tar  cf htmp2.tar htmp.tar
+if [ -f .hbundle.tar ]
+then
+	rm .hbundle.tar
+fi
+
+#Now create file to send to dest
+echo "#!/bin/ksh" > .hbundle.tar
+echo "#Dear $1,"  >> .hbundle.tar
+echo "# You are currently looking at the Harper Langston"  >> .hbundle.tar
+echo "# HotShell.  After installation, please read the user documents"  >>.hbundle.tar
+echo "# located in your $HOME/HotShell directory.  For more questions,"  >> .hbundle.tar
+echo "# please e-mail harperlangston@gmail.com"  >>.hbundle.tar
+echo "#"  >> .hbundle.tar
+echo "# INSTALLATION STEPS:"  >> .hbundle.tar
+echo "# To install, HotShell, please follow these steps:"  >> .hbundle.tar
+echo "# 1. Save this message in your home directory as HotInstall"  >>.hbundle.tar
+echo "# 2. Go to your home directory and type: chmod +x HotInstall"  >>.hbundle.tar
+echo "# 3. Type ./HotInstall to execute the self-installation."  >>.hbundle.tar
+echo "#    again, in your home directory"  >> .hbundle.tar
+echo "# 4. There will be a directory called HotShell with the following"  >> .hbundle.tar
+echo "#    directories:"  >> .hbundle.tar
+echo "#	- hcmds:  contains all HotShell scripts and the hotshell"  >>.hbundle.tar
+echo "# 	  executable command"  >> .hbundle.tar
+echo "#	- hmanpgs:  contains all manual pages for all hotshell"  >>.hbundle.tar
+echo "#		    commands.  You can view these by themselves by"  >>.hbundle.tar
+echo "#             typing more (file) or invoke them from hotshell"  >>.hbundle.tar
+echo "#		    by typing hman (hotshell command)."  >> .hbundle.tar
+echo "# - hdesign: contains design document and user guide." >>.hbundle.tar
+echo "#            The design document is useful for developers, and" >>.hbundle.tar
+echo "#            the user guide is for end-users, containing this installation" >>.hbundle.tar
+echo "#            guide as well as tutorials for hotshell and all scripts" >>.hbundle.tar
+echo "# 5. Set your path to include the hotshell executable:"  >>.hbundle.tar
+echo "#    If you are in C-Shell, type at the prompt:"  >> .hbundle.tar
+echo '#        setenv PATH ${PATH}:${HOME}/HotShell/hcmds'  >>.hbundle.tar
+echo "#    If you are in the Bourne or Korn Shell, type:"  >> .hbundle.tar
+echo '#        PATH=${PATH}:${HOME}/HotShell/hcmds'  >> .hbundle.tar
+echo "# 6. Now that your path is set, type hotshell from your home "  >> .hbundle.tar
+echo "#    directory, and you're off and running!"  >> .hbundle.tar
+echo "# 7. Again, for more information, e-mail harperlangston@gmail.com"  >> .hbundle.tar
+echo "# 8. Also, to send this to anyone else, enter hotshell and type:"  >> .hbundle.tar
+echo "#    heds <destination e-mail address>"  >> .hbundle.tar
+echo "#"  >> .hbundle.tar
+echo "uudecode << HAR_DELIM" >> .hbundle.tar
+uuencode -m htmp2.tar .htmp2.tar >> .hbundle.tar
+rm htmp.tar
+echo "HAR_DELIM" >> .hbundle.tar
+# use p option to restore files to original permissions
+echo 'tar xvfp $HOME/.htmp2.tar' >> .hbundle.tar 
+echo '$HOME/htmp.tar' >> .hbundle.tar
+echo 'if [ $? -eq 0 ]' >> .hbundle.tar
+echo "echo 'HotShell has installed correctly. Have fun!'" >> .hbundle.tar
+echo "then" >> .hbundle.tar
+echo "mail -s 'HotShell Installation' $USER harperlangston@gmail.com<< E_O_M" >> .hbundle.tar
+echo 'The Hotshell was installed correctly by $USER' >> .hbundle.tar
+echo "E_O_M" >> .hbundle.tar
+echo "else" >> .hbundle.tar
+echo "echo 'HotShell did not install correctly.  Contact $USER or'" >>.hbundle.tar
+echo "echo 'harperlangston@gmail.com to try again'" >>.hbundle.tar
+echo "mail -s 'HotShell Installation' $USER harperlangston@gmail.com << E_O_M" >>.hbundle.tar
+echo '$USER could not unbundle HotShell' >> .hbundle.tar
+echo "The installation file returned a bad exit status" >>.hbundle.tar
+echo "So the har file has been corrupted" >>.hbundle.tar
+echo 'Contact $USER to try again'>>.hbundle.tar
+echo "E_O_M" >> .hbundle.tar
+echo "fi" >> .hbundle.tar
+echo "rm .htmp2.tar" >> .hbundle.tar
+echo "rm htmp.tar" >> .hbundle.tar
+echo 'rm $HOME/HotShell/.hhistory' >> .hbundle.tar
+echo 'if [ -d $HOME/HotShell/.hmailfiles ]' >> .hbundle.tar
+echo 'then' >> .hbundle.tar
+echo 'rm $HOME/HotShell/.hmailfiles/*' >> .hbundle.tar
+echo 'fi' >> .hbundle.tar
+chmod +x .hbundle.tar
+cat .hbundle.tar | mail -s "Harper Langston's HotShell" $1
+rm .hbundle.tar
+rm htmp2.tar

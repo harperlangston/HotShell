@@ -1,0 +1,66 @@
+#!/bin/ksh
+location=`pwd`
+if [ ! -d $location/RCS ]
+then
+    echo "RCS directory in $location does not exist."
+    echo "Therefore, desired file cannot exist here."
+    echo "Either mkdir RCS in $location or change to"
+    echo "appropriate directory and call hget again."
+    exit 1
+fi
+if [ $# -ne 2 ]
+then
+    echo "hget: illegal usage"
+    echo "Usage: hget file date (yyyy/mm/dd)"
+    exit 2
+fi
+echo $2 | tr -d / | grep ^[12][90][0189][0-9][01][0-9][0-3][0-9]$ > /dev/null
+if [ $? -ne 0 ]
+then
+    echo "hget: date in the wrong format"
+    echo "date should be of format: yyyy/mm/dd"
+    exit 3
+fi
+if [ -f $1 ]
+then
+    echo "$1 is already in $location"
+    echo "hget cannot work unless $1 is checked in by RCS"
+    echo "type ci $1 or remove $1 from $location"
+    exit 4
+fi
+echo "Using RCS to retrieve most recent version of $1"
+co $1 
+if [ $? -ne 0 ]
+then
+    echo "RCS could not retrieve $1"
+    echo "Make sure $1 is typed correctly and that it is"
+    echo "an RCS source control file"
+    exit 5
+fi
+echo "Using RCS to retrieve latest version of $1 on or before $2"
+cp $1 .h_temp_version
+ci $1
+co -d$2 $1
+if [ $? -ne 0 ]
+then
+    echo "RCS could not retrieve $1, edited before $2"
+    echo "Use rlog $1 to look at revision dates."
+    rm -f .h_temp_version; rm -f $1
+    exit 6
+fi
+echo ""
+echo "Showing differences since $2 in $1 using diff"
+echo "Newest version is first file.  See diff for explanation"
+echo ""
+diff .h_temp_version $1
+if [ $? -eq 0 ]
+then
+    echo "No changes made since $2 to $1"
+    rm $1
+    rm -f .h_temp_version; rm -f $1
+    exit 7
+else
+    rm -f .h_temp_version
+    rm -f $1
+    exit 0
+fi

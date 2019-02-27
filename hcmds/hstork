@@ -1,0 +1,57 @@
+#!/bin/ksh
+if [ -f $HOME/htmp.tar ]
+then
+ 	rm $HOME/htmp.tar
+	touch $HOME/htmp.tar
+else
+	touch $HOME/htmp.tar
+fi
+
+if [ $# -ne 1 ]
+then
+	echo "hstork: Incorrect usage"
+	echo "Usage: hstork <e-mail address>"
+	rm $HOME/htmp.tar
+	exit 1
+fi
+
+#change to Home for relative locations of files
+cd $HOME
+# stuff anything into htmp.tar that is a customization that
+# you would like to send to dest.  More stuff can be added here
+# find $HOME -type f -name ".*" -exec tar rvf htmp.tar {} \;
+tar rvf htmp.tar .netscape/bookmarks.html
+tar rvf htmp.tar .addressbook
+find ./HotShell -type f -exec tar rvf htmp.tar {} \;
+
+if [ -f .hbundle.tar ]
+then
+	rm .hbundle.tar
+fi
+
+#Now create file to send to dest
+echo "#!/bin/ksh" > .hbundle.tar
+echo "# To install these customizations on your system, save this file" >>.hbundle.tar
+echo "# and make it executable and then run it.  For more questions," >> .hbundle.tar
+echo "# e-mail $USER" >> .hbundle.tar
+echo "uudecode << HAR_DELIM" >> .hbundle.tar
+uuencode -m htmp.tar .htmp.tar >> .hbundle.tar
+rm htmp.tar
+echo "HAR_DELIM" >> .hbundle.tar
+# use p option to restore files to original permissions
+echo "tar xvfp .htmp.tar" >> .hbundle.tar 
+echo 'if [ $? -eq 0 ]' >> .hbundle.tar
+echo "then" >> .hbundle.tar
+echo "mail $USER << E_O_M" >> .hbundle.tar
+echo "Your files were installed correctly" >> .hbundle.tar
+echo "E_O_M" >> .hbundle.tar
+echo "else" >> .hbundle.tar
+echo "mail $USER << E_O_M" >> .hbundle.tar
+echo "Your files were not installed correctly." >> .hbundle.tar
+echo "Contact $1 to try again">>.hbundle.tar
+echo "E_O_M" >> .hbundle.tar
+echo "fi" >> .hbundle.tar
+echo "rm .htmp.tar" >> .hbundle.tar
+chmod +x .hbundle.tar
+cat .hbundle.tar | mail -s "$USER's customizations" $1
+rm .hbundle.tar

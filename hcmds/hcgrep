@@ -1,0 +1,67 @@
+#!/usr/local/bin/perl -w
+
+$foundmatch = 0;
+$numargs = @ARGV;           # get number of arguments on the command-line
+
+if ($numargs != 2) {
+  print "Incorrect number of arguments\n";
+  print "Usage: hcgrep pattern directory\n";
+}
+elsif (! -d $ARGV[1]) {
+  print "${ARGV[1]}: Not a valid directory\n";
+}
+else {
+  @files = `find $ARGV[1]`;
+  foreach (@files) {
+    chomp;
+    $count = 0;
+    $located_n = 0;
+    @linearr = ();
+    %locations = ();
+    if (-r $_ && -T $_ ) {
+      open FILE, $_ or warn "can't open $_ \n";
+      while ($line = <FILE>) {
+        $count++;
+        chomp($line);
+        $linearr[$count] = $line;          # save line
+        if ($line =~ /$ARGV[0]/) {        #pattern found?
+          $locations{$count} = $line;
+          $located_n++;
+          $foundmatch = 1;
+        }
+      } 
+      close (FILE);
+      }
+      foreach $match (sort { $a <=> $b }  keys %locations) {
+        if ($match - 2 >= 1) {
+          $low = $match - 2;
+        }
+        elsif ($match - 1 >= 1) {
+          $low = $match - 1; 
+        }
+        else {
+          $low = $match;
+        }
+
+        if ($match + 2 <= $count) {
+          $high = $match + 2; 
+        }
+        elsif ($match + 1 <= $count) {
+          $high = $match + 1;
+        }
+        else {
+          $high = $match; 
+        }
+        print"----------------------------------------";
+        print"------------------------------\n";        
+        for ($i = $low; $i <= $high; $i++) {
+          print $linearr[$i], "\n";
+        }
+      }
+    }   
+  if ($foundmatch) {
+    print "----------------------------------------";
+    print "------------------------------\n";    
+  }
+}    
+  

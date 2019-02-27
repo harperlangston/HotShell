@@ -1,0 +1,72 @@
+#!/bin/ksh
+# Edit this next line if HotShell/.hothosts is not the 
+# location of your host file, but make it the same format as .hothosts
+# .hothosts is a copy of /etc/hosts slightly modified for hosts I want 
+# to search
+if [ -f $HOME/HotShell/.hothosts ]
+then
+hostlist=$HOME/HotShell/.hothosts
+if [ ! $# -eq 1 ]
+then
+	echo "htalk: Incorrect usage"
+	echo "Usage: htalk user-name"
+	exit 1
+else
+	who | 
+	awk '{
+		print $1
+	}' | sort -u |
+	grep $1
+	if [ $? -eq 0 ]
+	then
+		talk $1
+		exit 0
+	else
+		echo "$1 is not on your local host"
+		echo "Searching other hosts from $hostlist"
+		if [ ! -f $hostlist ]
+		then	
+			echo "$hostlist does not exist on this system!"
+			echo "Edit htalk to locate your host file"
+			exit 1
+		fi
+		cleaned=`sed '{	
+			#strip out comments from file
+			/#/d
+			/localhost/d
+		}' $hostlist |
+		awk '{
+		# my /etc/hosts file has hostnames in the 2nd field and on
+			for (i=2; i <=NF; i++)
+				print $i
+		}'`
+		for name in $cleaned
+		do
+			echo "Searching $name . . . "
+			finger "@$name" |
+			awk '{
+				print $1
+			}' | sort -u | grep $1
+			if [ $? -eq 0 ]
+			then
+				talk "$1@$name"
+				exit 0
+			fi
+		done
+		echo "$1 could not be found . . . Maybe later"
+		exit 2
+	fi
+fi
+else
+	echo "No .hothosts file!"
+	echo "Please reinstall HotShell or copy your /etc/hosts"
+	echo "file to $HOME/HotShell/.hothosts where it is"
+	echo "of the format:"
+	echo "IP Address <tab> host-name"
+	echo "Example:"
+	echo "# Internet host table"
+	echo "#"
+	echo "128.122.20.13   quixote.cims.nyu.edu"
+	echo "128.122.80.6    scrappy.cims.nyu.edu"
+	exit 3
+fi

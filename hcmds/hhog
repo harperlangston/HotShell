@@ -1,0 +1,34 @@
+#!/bin/ksh
+if [ -n "$1" -a "$1" != "-w" -o -n "$2" ]
+then
+    echo "hotshell: illegal option or usage"
+    echo "Usage: hhog [-w]"
+else
+    ps -ef |
+    awk 'NR ==1{ next }
+	{
+	   if ($1 != "root")
+	      sessions[$1] = sessions[$1] + 1
+        }
+        END {
+           for (name in sessions) 
+	      print sessions[name], name | command = "sort -n -r" 
+        }' |
+    if [ "$1" = "-w" ]
+    then
+	winner=`awk 'NR==1{
+	   print $2
+        }'`
+	echo "Sending mail to $winner"
+	echo '
+        -----------------------------------------------
+	Greetings: Could you please quit some of the
+	jobs you are running? The server is very busy.  
+	Thanks!
+	-----------------------------------------------' | mail -s "Your jobs" $winner
+    else
+	awk 'NR==1{
+           print $2" is running the most jobs: "$1" jobs"
+        }'
+    fi
+fi

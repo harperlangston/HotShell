@@ -1,0 +1,28 @@
+#!/bin/ksh
+if [ $# == 0 ]
+then
+# do basic search in current directory
+    ls -la | sort +4 -5 -n -r | head -5
+elif [ -n "$3" ]
+then
+# if $3 is non-empty, bad operation
+    echo "hotshell: illegal option or usage"
+    echo "Usage: hquota [-r] [directory]"
+elif [ "$1" != "-r" -a ! -d "$1" ]
+then
+# not a valid operation
+    echo "hotshell: illegal option or usage"
+    echo "Usage: hquota [-r] [directory]"
+elif [ -d "$1" ]
+then
+# basic search in given directory
+    ls -la $1 | sort +4 -5 -n -r | head -5	
+elif [ "$1" = "-r" -a -z "$2" ]
+then
+# recursive search from current directory
+    ls -Rla | sort +4 -5 -n -r | head -5
+elif [ "$1" = "-r" -a -n "$2" ]
+then
+# recursive search through given directory
+    ls -Rla $2 | sort +4 -5 -n -r | head -5
+fi

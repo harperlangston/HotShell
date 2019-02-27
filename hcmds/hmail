@@ -1,0 +1,330 @@
+#!/usr/local/bin/perl -w
+
+# if .hmailfiles has not been created, create it
+$dirpath = $ENV{"HOME"} . "/HotShell/.hmailfiles";
+if (! -d $dirpath) {
+  `mkdir $dirpath`;
+}
+
+%userinfo = ();                       # stores user information
+  
+$num_args = @ARGV;
+
+if ($num_args == 0) { 
+  &menu1;
+  do {
+    $invalid_choice = 0;
+    print "> ";
+    chomp($choice = <STDIN>);
+    if ($choice eq "1") {
+      &addnewuser;
+    }
+    elsif ($choice eq "2") {
+      &deleteuser;
+    }
+    elsif ($choice eq "3") {
+      &showuserinfo;
+    }
+    elsif ($choice eq "4") {
+      &showuserlist;
+      }
+    elsif ($choice eq "5") {
+      ;
+    }
+    else {
+      print "Invalid selection\n";
+      $invalid_choice = 1;
+    }
+  } while ($invalid_choice);
+}
+  
+elsif ($num_args == 2) {
+  if ($ARGV[0] eq "forward") {
+    $olddir = `pwd`;
+    chdir;
+    `vacation -I`;
+    open(OUT, ">.forward") || warn "can't open .forward file";
+    print OUT "${ARGV[1]}, \"| vacation $ENV{\"LOGNAME\"}\"";
+    close(OUT);
+    open(OUT1, ">.vacation.msg") || warn "can't open .vacation.msg file";
+    print OUT1 "\n";
+    print OUT1 "Your message has been forwarded to my\n";
+    print OUT1 "new e-mail address:  $ARGV[1] \n"; 
+    close(OUT1);
+    chdir("$olddir");
+  }
+  elsif ($ARGV[0] eq "-n") {
+    $notify = 0;
+    $userpath = "${dirpath}" . "/$ARGV[1]";
+    if (! -f $userpath) {
+      print "${ARGV[1]}: User Not Found\n";
+    }
+    else {
+      $result = &getinfo("$userpath", "email");
+      if ($result eq "-1") {
+        print "${ARGV[1]}: No e-mail address found\n";
+      }
+      else {
+        `from > tempmailaddresses`;
+        open(OUT, "tempmailaddresses") || 
+                     warn "couldn't open file tempmailaddresses";
+        while (<OUT>) {
+          if (/\b${result}\b/) {
+            $notify = 1;
+          }
+        }
+        close(OUT);
+        unlink("tempmailaddresses");
+        if ($notify) {
+          print "New mail has arrived from $ARGV[1] \n";
+        }
+        else {
+          print "No new mail from $ARGV[1] \n";
+        }
+      }
+    }
+  }    
+  elsif ($ARGV[0] eq "-l") {
+    $found = 0;
+    @userlist = `ls $dirpath`;
+    if (@userlist) {
+      for($i = 0; $i < @userlist; $i++) {
+        $userpath = "${dirpath}/$userlist[$i]";
+        open(OUT, "$userpath") || 
+	        warn "couldn't open file";
+	while (<OUT>) {
+          chomp;
+	  @info = split;
+	  $values{$info[0]} = $info[1];
+	}
+        close(OUT);
+        if (exists $values{"login"}) {
+          if ($values{"login"} eq $ARGV[1]) {
+            if (exists $values{"email"}) {
+              print "Write mail to $userlist[$i] \n";
+              system("mailx $values{\"email\"}");
+              $found = 1;
+              last;
+            }
+            else {
+              print "${userlist[$i]}: No e-mail address found\n";
+            }
+          }
+        }
+      }
+      if ($found == 0) {
+        print "${ARGV[1]}: Login name not found\n";
+      }
+    }
+    else {
+      print "Addres book empty\n";
+    }
+  }  
+  elsif ($ARGV[0] eq "-nn") {
+    $found = 0;
+    @userlist = `ls $dirpath`;
+    if (@userlist) {
+      for($i = 0; $i < @userlist; $i++) {
+        $userpath = "${dirpath}/$userlist[$i]";
+        open(OUT, "$userpath") || 
+	        warn "couldn't open file";
+	while (<OUT>) {
+          chomp;
+	  @info = split;
+	  $values{$info[0]} = $info[1];
+	}
+        close(OUT);
+        if (exists $values{"nickname"}) {
+          if ($values{"nickname"} eq $ARGV[1]) {
+            if (exists $values{"email"}) {
+              print "Write mail to $userlist[$i] \n";
+              system("mailx $values{\"email\"}");
+              $found = 1;
+              last;
+            }
+            else {
+              print "${userlist[$i]}: No e-mail address found\n";
+            }
+          }
+        }
+      }
+      if ($found == 0) {
+        print "${ARGV[1]}: Nickname not found\n";
+      }
+    }
+    else {
+      print "Addres book empty\n";
+    }
+  }
+  
+  elsif ($ARGV[0] eq "-u") {
+    $userpath = "${dirpath}/$ARGV[1]";
+    if (-e $userpath) {
+      open(OUT, "$userpath") || 
+              warn "couldn't open file";
+      while (<OUT>) {
+        chomp;
+        @info = split;
+        $values{$info[0]} = $info[1];
+      }
+      close(OUT);
+      if (exists $values{"email"}) {
+        print "Write mail to $ARGV[1] \n";
+        system("mailx $values{\"email\"}");
+      }
+      else {
+        print "${ARGV[1]}: No e-mail address found\n";
+      }
+    }
+    else {
+      print "${ARGV[1]}: User Does Not Exist\n";
+    }
+  } 
+  elsif (-e $ARGV[0]) {
+    system("mailx $ARGV[1] < $ARGV[0]");
+  }
+  else {
+    print "${ARGV[0]}: File Does Not Exist\n";
+  }
+}
+
+sub addnewuser {
+  print "Please enter name> ";
+  chomp($name = <STDIN>);
+  $userpath = "${dirpath}/$name";
+  if (-e $userpath) {
+    print "User already exists, overwrite? (y/n) > ";
+    chomp($choice = <STDIN>);
+    if ($choice eq "y") {
+      unlink("$userpath");
+      `touch $userpath`;
+      &getuserinfo;
+    }
+  }
+  else {
+    `touch $userpath`;
+    &getuserinfo;
+  }
+}
+  
+sub deleteuser {
+  print "Please enter username> ";
+  chomp($name = <STDIN>);
+  $userpath = "${dirpath}/$name";
+  if ($name ne "") {
+    if (-e $userpath) {
+      unlink("$userpath");
+      print "${name}: User Deleted\n";
+    }
+    else {
+      print "${name}: User Does Not Exist\n";
+    }
+  }
+}  
+
+sub showuserinfo {
+  print "Please enter username> ";
+  chomp($name = <STDIN>);
+  $userpath = "${dirpath}/$name";
+  if ($name ne "") {
+    if (-e $userpath) {
+      open(OUT, "$userpath") || 
+         warn "couldn't open file tempmailaddresses";
+      while (<OUT>) {
+        chomp;
+        @info = split;
+        $values{$info[0]} = $info[1];
+      }
+      close("OUT");
+      foreach $item (sort keys(%values)) {
+        printf "%-10s = %s \n", $item, $values{$item};
+      }
+    }
+    else {
+      print "${name}: User Does Not Exist\n";
+    }
+  }
+}
+
+sub showuserlist {
+  @userlist = `ls $dirpath`;
+  if (@userlist) {
+    @userlist = sort(@userlist);
+    for ($i = 0; $i < @userlist; $i++) {
+      chomp($userlist[$i]);
+      print "$userlist[$i] \n";
+    }
+  }
+  else {
+    print "Address book is empty\n";
+  }
+}
+          
+sub getuserinfo {
+  open(IN, ">>$userpath") || 
+             warn "couldn't open file tempmailaddresses";
+  print "Enter nickname> ";
+  chomp($choice = <STDIN>);
+  if ($choice ne "") {
+    print IN "nickname  $choice \n";
+  }
+  print "Enter login name> ";
+  chomp($choice = <STDIN>);
+  if ($choice ne "") {
+    print IN "login  $choice \n";
+  }
+  print "Enter e-mail address> ";
+  chomp($choice = <STDIN>);
+  if ($choice ne "") {
+    print IN "email  $choice \n";
+  }
+  print "Enter phone number> ";
+  chomp($choice = <STDIN>);
+  if ($choice ne "") {
+    print IN "phone  $choice \n";
+  }
+  print "Enter fax number> ";
+  chomp($choice = <STDIN>);
+  if ($choice ne "") {
+    print IN "fax  $choice \n";
+  }
+  close(IN);
+}
+  
+
+sub getinfo {
+  $username = $_[0];
+  $info = $_[1];
+  @key_val = ();
+  
+  if (-f $username) {
+    open(OUT, "$username") || warn "couldn't open file $username";
+    while(<OUT>) {
+      chomp;
+      @key_val = split;
+      $userinfo{$key_val[0]} = $key_val[1];
+    }
+    close(OUT);
+    if (exists $userinfo{$info}) {
+      return $userinfo{$info};
+    }
+    else {
+      return "-1";
+    }
+  }
+  else {
+    print "$username: User Does Not Exist\n";
+  }
+}
+
+sub menu1 {
+  print "\nAddress Book Menu\n"; 
+  print "Please select one of the following options:\n";
+  print "1) Add new user\n";
+  print "2) Delete user\n";
+  print "3) Display user information\n";
+  print "4) Display list of all users in address book\n";
+  print "5) Quit\n";
+}
+
+

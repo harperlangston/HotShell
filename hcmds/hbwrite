@@ -1,0 +1,63 @@
+#!/usr/bin/ksh
+if [ $# -lt 3 ]
+then
+	echo "hbwrite:  Incorrect usage.  Correct Usage:"
+        print "Usage: hbtalk <usr1> [<usr2> . . . <usrn>] : broadcast"
+	print "Do not use quotes around broadcast message"
+        exit 1
+else	
+	if [ $1 = ":" ]
+	then
+	    echo "hbwrite:  Incorrect usage.  Correct Usage:"
+	    print "Usage: hbtalk <usr1> [<usr2> . . . <usrn>] : broadcast"
+	    print "Do not use quotes around broadcast message"
+	    exit 1
+	fi
+	tester=0
+	message=""
+	for i
+	do
+	    if [ $tester -eq 1 ]
+	    then
+		message="$message $i"
+	    fi
+	    if [ $i = ":" ]
+            then 
+		tester=1
+	    fi
+	 done
+	 if [ $tester -eq 0 ]
+	 then
+	    echo "hbwrite:  Incorrect usage.  Correct Usage:"
+            print "Usage: hbtalk <usr1> [<usr2> . . . <usrn>] : broadcast"
+	    print "Do not use quotes around broadcast message"
+            exit 1
+	 elif [ -z $message ]
+	 then
+	    echo "hbwrite:  Incorrect usage.  Correct Usage:"
+            print "Usage: hbtalk <usr1> [<usr2> . . . <usrn>] : broadcast"
+	    print "Do not use quotes around broadcast message"
+            exit 1
+	 fi
+	 tester=0
+	 eval=0
+	 for i
+	 do   
+	    if [ $i = ":" ]
+	    then
+		tester=1
+	    fi
+	    if [ $tester -eq 0 ]
+	    then
+		who | awk '{ print $i }' | sort -u | grep $i
+		if [ $? -eq 0 ]
+		then
+		    echo "$message" | write $i
+		else
+		    echo "$i not found.  Trying next user"
+                    eval=2
+		fi
+	    fi
+	done
+	exit $eval
+fi

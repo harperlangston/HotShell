@@ -1,0 +1,36 @@
+#!/bin/ksh
+if [ -z $1 ]
+then
+    echo "hotshell: illegal option or usage"
+    echo "Usage: hrm file1 file2 . . . or -e to empty .htrash"
+elif [ $1 = "-e" -a -n "$2" ]
+then
+    echo "hotshell: illegal option or usage"
+    echo "Usage: hrm file1 file2 . . . or -e to empty .htrash"
+elif [ $1 = "-e" ]
+then
+    if [ -d $HOME/HotShell/.htrash ]
+    then
+        tester=`ls $HOME/HotShell/.htrash`
+	if [ -z "$tester" ]
+	then
+	    print "Nothing in .htrash to delete"
+	else	
+            rm $HOME/HotShell/.htrash/*
+        fi
+    else 
+        print "Nothing in .htrash to delete"
+    fi
+else
+    for f in $*
+    do
+	if [ -d $HOME/HotShell/.htrash ]
+	then
+	     mv $f $HOME/HotShell/.htrash
+	else
+	     mkdir $HOME/HotShell/.htrash
+	     mv $f $HOME/HotShell/.htrash	
+        fi
+    done
+fi
+
