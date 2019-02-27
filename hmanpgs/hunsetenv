@@ -1,0 +1,43 @@
+User Commands:  hunsetenv    
+
+NAME
+	hunsetenv - unset an environment variable
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hunsetenv $VARNAME  
+
+DESCRIPTION
+        hsetenv unsets an environment variable.  In order to set an
+        environment variable in hotshell, the following syntax is
+        used: hsetenv $VARNAME  [$]value  
+        (note: value can be a variable name or a string) 
+        
+        By convention, environment variable names are all in 
+        uppercase letters.  All variables in hotshell begin with 
+        dollar signs.  Environment variables are visible to subshells
+        (user-defined variables are not).  
+        
+OPERANDS
+        The following operand is supported:
+        
+        $VARNAME : The name of the environment variable to be set.
+                   By convention, environment variable names are  
+                   all in uppercase letters.
+
+        All variable names must begin with a '$'.
+        
+EXAMPLES
+	hotshell>echo $FOO
+	FOO: Undefined variable
+	hotshell>hsetenv $FOO algebra   # set environment variable
+	hotshell>echo $FOO
+	algebra
+	hotshell>hunsetenv $FOO         # unset environment variable
+	hotshell>echo $FOO
+	FOO: Undefined variable
+		
+SEE ALSO
+	henv, hotshrc, hunset, hsetenv
+
+

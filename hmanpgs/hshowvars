@@ -1,0 +1,25 @@
+User Commands:  hshowvars    
+
+NAME
+	hshowvars - display user-defined variables and their values
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hshowvars
+
+DESCRIPTION
+        hshowvar displays all user-defined variables that have been
+        set.
+        
+EXAMPLES
+	hotshell>hshowenv
+	name = mary
+	book = jaws
+	team = mets
+	city = chicago
+	..
+		
+SEE ALSO
+	henv, hsetenv, hunset, hunsetenv
+
+

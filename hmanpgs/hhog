@@ -1,0 +1,43 @@
+User Commands:  hhog
+
+NAME
+	hhog - find which non-root user is running the most processes
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hhog [ -w ]
+
+DESCRIPTION
+	hhog alerts the user which non-root user is currently running
+	the most processes on the current host machine.  It also tells
+	the number of processes being run by the user running the most
+	processes.
+
+	hhog -w will find the user running the most processes and will
+	send a polite message to this user, using mail, asking them to
+	quit some of their processes.
+
+OPTIONS
+	The following options are supported:
+
+	-w: Using hhog with this option will find the non-root user
+	running the most processes and send a polite e-mail message to
+	them, asking them to quit some of their processes
+
+EXAMPLES
+	%hhog
+	new_user is running the most jobs:  27 jobs
+
+	%hhog -w
+	Sending mail to new_user
+
+SEE ALSO
+	ps, mail
+
+NOTES/BUGS
+	hhog only looks at the current sever that the $USER is logged
+	into and running hhog from.
+
+	Also, run hhog first and check who the user running the most
+	processes is; hhog -w may send a message to an irritable
+	professor if you are not careful.
+

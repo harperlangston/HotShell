@@ -1,0 +1,56 @@
+User Commands:  hcgrep
+
+NAME
+	hcgrep - a context grep which takes a directory
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hcgrep pattern directory
+
+DESCRIPTION
+	hcgrep is a context-based grep which is given a pattern and a
+	directory.  hcgrep searches the given directory and its
+	subdirectories for the pattern in all of the directory's and
+	its subdirectories' files.  If a file contains that pattern,
+	hcgrep returns up to two lines above where the pattern was
+	found and up to two lines below.  If the match is at the top or
+	bottom of the file, then either one or no lines above or below
+	will be returned.
+
+OPERANDS
+	The following operands are supported:
+
+	pattern:  The pattern the user is interested in looking for
+
+	directory:  The directory where we are looking for the
+	pattern.  hcgrep will search all files in this directory for
+	pattern as well as all subdirectories.
+
+EXAMPLES
+	The following is an example session using hcgrep.  First, we
+	create a test file and then hcgrep for a pattern to show sample
+	output:
+
+	hotshell>ls -l > test
+	hotshell>echo monkey >> test
+	hotshell>date >> test
+	hotshell>echo "I like soup!" >> test
+	hotshell>
+	hotshell>hcgrep monkey ./
+	----------------------------------------------------------------------
+	-rwx------   1 new_user   6126       31120 Nov 27 17:12 hotshell
+	-rw-------   1 new_user   6126           0 Nov 28 03:32 test
+	monkey
+	Tue Nov 28 03:32:58 EST 2000
+	I like soup!
+	----------------------------------------------------------------------
+
+
+SEE ALSO
+	grep, egrep, hrgrep
+
+
+NOTES/BUGS
+	Currently, hcgrep does not return the name of the file where
+	the pattern was found along with the matched context lines.
+
+

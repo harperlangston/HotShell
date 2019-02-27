@@ -1,0 +1,114 @@
+User Commands:  hget
+
+NAME
+	hget - retrieve the differences in a file since a given date
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hget file date (yyyy/mm/dd)
+
+DESCRIPTION
+	hget allows a user to look at the changes in a file since a
+	given date.  It is assumed that the file is under a source
+	control mechanism, namely RCS in this case.  The date must be
+	declared in the following format:  yyyy/mm/dd.  You must be in
+	the current directory in which there is an RCS directory,
+	containing information for the file requested.  An example
+	session of using RCS and hget are given below under EXAMPLES
+
+OPERANDS
+	The following operands are supported:
+
+	file:  The name of the file being looked at.  This file should
+	not reside in the current directory; however, there should be
+	an entry in the RCS directory in the current directory for
+	file.
+
+	date:  given in the format, yyyy/mm/dd, hget will retrieve the
+	most recent version of file from on or before date and compare
+	it to the most recent version.
+
+EXAMPLES
+	Since hget will return nothing when using a new file, the
+	following is an example of using RCS to force a checkin of a
+	file with a given modification date instead of the current
+	date.  First, we make an RCS directory, use co and ci to
+	checkout and checkin the file test (note ci uses the forced
+	date mechanism).  This will allow the use of hget to show how
+	it works:
+
+	hotshell>pwd
+	/home/new_user/HotShell/testing
+	hotshell>mkdir RCS
+	hotshell>date > test
+	hotshell>ci -d2000/11/20 test
+	RCS/test,v  <--  test
+	enter description, terminated with single '.' or end of file:
+	NOTE: This is NOT the log message!
+	>> New file, test, with a forced checkin of 2000/11/20
+	>> .
+	initial revision: 1.1
+	done
+	hotshell>
+	hotshell>co -l test
+	RCS/test,v  -->  test
+	revision 1.1 (locked)
+	done
+	hotshell>ls -l >> test
+	hotshell>ci -d 2000/11/28 test
+	ci: 2000/11/RCS/28: No such file or directory
+	RCS/test,v  <--  test
+	new revision: 1.2; previous revision: 1.1
+	enter log message, terminated with single '.' or end of file:
+	>> Added ls -l line to bottom of test
+	>> .
+	done
+	hotshell>
+	hotshell>hget test 2000/11/21
+	Using RCS to retrieve most recent version of test
+	RCS/test,v  -->  test
+	revision 1.2
+	done
+	Using RCS to retrieve latest version of test on or before
+	2000/11/21
+	RCS/test,v  <--  test
+	ci: RCS/test,v: no lock set by new_user
+	RCS/test,v  -->  test
+	revision 1.1
+	done
+
+	Showing differences since 2000/11/21 in test using diff
+	Newest version is first file.  See diff for explanation
+
+	2,4d1
+	< total 4
+	< drwx------   2 new_user   6126         512 Nov 28 02:40 RCS
+	< -rw-------   1 new_user   6126          29 Nov 28 02:40 test
+
+
+SEE ALSO
+	diff, rcs, co, ci, rlog, rcsdiff
+
+EXIT VALUES
+	0 - hget was successful and differences were found and reported
+	in versions
+	1 - No RCS directory in the current directory
+	2 - Two arguments not given as needed
+	3 - date (yyyy/mm/dd) in wrong format
+	4 - file is in the current directory, so must either be checked
+	in or deleted
+	5 - RCS could not find an entry for file
+	6 - RCS could not find an entry for file before date
+	7 - hget found entries, but there were no differences in
+	versions
+
+NOTES/BUGS
+	It is important to have an understanding of RCS before
+	attempting to use this command properly.  The RCS source
+	control setup must already be in place.
+
+	Currently, some bogus dates can slip through such as 2000/00/00
+	and 2000/19/39 and not caught gracefully by hget.  RCS will
+	catch them and return its error message. This is being worked
+	on and should be fully repaired by HotShell 1.2
+
+

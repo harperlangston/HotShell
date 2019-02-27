@@ -1,0 +1,39 @@
+User Commands: hunalias
+
+NAME
+	hunalias - releases a previously defined alias
+
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hunalias name
+	
+
+DESCRIPTION
+        Aliasing is a feature that allows the user to assign a name
+        to a command or a sequence of commands. Variable interpolation
+        is not performed on the definition.  To use an alias, just type
+        it's name at the command line, and it's definition will be 
+        executed. To release an alias use the hunalias command.
+        
+        hunalias releases a previously defined alias. If the argument
+        is not the name of an alias, an error message is printed.
+	
+OPERANDS
+	The following operand is supported:
+
+	name : the name of the alias which is to be released
+
+EXAMPLES
+        hotshell>halias
+        No aliases defined
+        hotshell>halias king echo elvis     # king is the new alias
+        hotshell>halias
+        king  echo elvis
+        hotshell>hunalias king
+        hotshell>halias
+        No aliases defined       
+	
+SEE ALSO
+	hotshrc, halias
+	
+

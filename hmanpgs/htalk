@@ -1,0 +1,80 @@
+User Commands:  htalk
+
+NAME
+	htalk - talk to another user even if they are logged onto
+	another host
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/htalk user
+
+DESCRIPTION
+	htalk allows a HotShell user to talk to another user even if
+	that user is logged onto another host.  htalk uses the
+	$HOME/HotShell/.hothosts file to determine which hosts should
+	be searched.  First, htalk looks on the current host to see if
+	the user is logged in, and if so, requests a talk session,
+	using talk.  If they are not, htalk loops through the .hothosts
+	file, looking for the user until there are no more hosts to
+	search or the user is found.  If the user is found, a talk
+	session is requested.  Otherwise, htalk exits and alerts the
+	user that the person could not be found.
+
+OPERANDS
+	The following operands are supported:
+
+	user:  The user to look for.  This should be the user's
+	$LOGNAME or $USER value, according to your system.
+
+EXAMPLES
+	In this example, my user name is new_user, and I am on
+	quorum7.nyu.edu, trying to chat with csweb who is normally on
+	spunky.
+
+	hotshell>htalk csweb
+	csweb is not on your local host
+	Searching other hosts from /home/new_user/HotShell/.hothosts
+	Searching quixote.cims.nyu.edu . . .
+	Searching quixote . . .
+	Searching querulous.cims.nyu.edu . . .
+	Searching querulous . . .
+	Searching quean.cims.nyu.edu . . .
+	Searching quean . . .
+	Searching quagmire.cims.nyu.edu . . .
+	Searching quagmire . . .
+	Searching scrappy.cims.nyu.edu . . .
+	Searching scrappy . . .
+	Searching dept.cs.nyu.edu . . .
+	Searching dept . . .
+	Searching spunky.cs.nyu.edu . . .
+	Searching spunky . . .
+	Searching slinky . . .
+	csweb could not be found . . . Maybe later
+
+	If csweb had been logged on, it would have requested a chat
+	session, using talk.
+
+FILES
+	htalk is dependent on $HOME/HotShell/.hothosts which has the
+	same style as /etc/hosts.  To alter this file for your specifc
+	needs, go to $HOME/Hotshell and edit .hothosts using your 
+	favorite editor.
+
+EXIT VALUES
+	0 - htalk successful
+	1 - htalk given wrong number of arguments
+	2 - user could not be found on any hosts
+	3 - .hothosts file does not exist
+
+SEE ALSO
+	talk
+
+NOTES/BUGS
+	If you are not on the courant/cims system, the .hothosts file
+	will have to be edited to look for any host you are interested
+	in.  For the correct format, look at $HOME/HotShell/.hothosts
+	and follow the format inside.
+
+	Even if your local host is not in the .hothosts file, htalk
+	will still first look on your local host and then look in the
+	.hothosts file.
+

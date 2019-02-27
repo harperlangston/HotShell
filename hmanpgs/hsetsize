@@ -1,0 +1,36 @@
+User Commands: hsetsize
+
+NAME
+        hsetsize - reset size of directory stack 
+	(default value is 10)       
+	       
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hsetsize value
+        (value must be between 1 and 100)
+
+DESCRIPTION
+        Resets the size of the directory stack. It's default value is 
+        10. Allows the user to determine how many directory changes
+        are saved. Note: if the user resets the size of the directory 
+        stack, the stack itself is cleared and the only value it 
+        contains will be the current working directory.  hsetsize calls  
+        can be invoked on the command-line or placed in the .hotshrc
+        file.
+        
+OPERANDS
+	The following operands are supported:	
+	
+	value : a number between 1 and 100 that will represent the
+	        maximum number of directories that can be stored on
+	        the directory stack.
+
+EXAMPLES
+        hotshell>hsetsize 20
+        
+        The directory stack will now store up to 20 directory changes.
+		
+SEE ALSO
+	hdirs, hpopd, hpushd
+
+

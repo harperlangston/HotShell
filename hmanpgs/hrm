@@ -1,0 +1,41 @@
+User Commands:  hrm
+
+NAME
+	hrm - moves files to $HOME/HotShell/.htrash, which can be
+	emptied on demand using -e option
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hrm -e | file1 [ file2 . . . filen ]
+
+DESCRIPTION
+	hrm moves files to the .htrash directory, located at
+	$HOME/HotShell/.htrash.  Multiple files and wildcards can be
+	used to hrm files.  Additionally, the switch, -e, allows users
+	to empty .htrash on demand.
+
+OPTIONS
+	The following options are supported:
+
+	-e:  empty $HOME/HotShell/.htrash
+
+OPERANDS
+	The following operands are supported:
+
+	file(s):  One or more files, or a wildcard for files which the
+	user wants to move to the .htrash directory for eventual
+	removal.
+
+EXAMPLES
+	hotshell>hrm junk1 junk2
+	hotshell>hrm junk?
+	hotshell>hrm -e
+
+SEE ALSO
+	rm
+
+NOTES/BUGS
+	If a file with the same name already exists in
+	$HOME/HotShell/.htrash of the name you would like to hrm, the
+	file in $HOME/HotShell will be overwritten and replaced with
+	the new file by the same name.
+

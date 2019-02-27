@@ -1,0 +1,47 @@
+User Commands:  hrgrep
+
+NAME
+	hrgrep - hrgrep is a recursive grep which searches for a
+	pattern recursively under a directory tree
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hrgrep pattern [ directory ]
+
+DESCRIPTION
+	hrgrep is a recursive grep which takes a pattern and returns
+	every occurrence of that pattern in a directory tree.  A
+	specific directory can be given, or if a directory is not given,
+	hrgrep will do a recursive grep from the current directory.  If
+	the pattern is not found, "No match" is returned.  Otherwise, a
+	list of every occurrence is outputted.
+
+OPERANDS
+	The following operands are supported:
+
+	pattern:  Pattern user is looking for.
+
+	directory:  directory to do a recursive grep for pattern on.
+	If no directory is given, hrgrep runs on the current directory
+	from which hrgrep is being called.
+
+EXAMPLES
+	The following are examples of how to run hrgrep.  You can run
+	them yourself to see sample output:
+
+	hrgrep hr (equivalent to hrgrep hr . )
+
+	hrgrep hr $HOME/bin
+
+EXIT VALUES
+	0 - hrgrep successful
+	1 - hrgrep unsuccessful
+
+SEE ALSO
+	grep, hcgrep, egrep, find
+
+NOTES/BUGS
+	Currently, hrgrep returns all lines which matched, but it does
+	not return filenames of those files with matched lines.  It is
+	good for an initial grep to look for a pattern in a directory
+	tree somewhere.
+

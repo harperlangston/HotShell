@@ -1,0 +1,62 @@
+User Commands:  hbwrite
+
+NAME
+	hbwrite - write to multiple users at once
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hbwrite user1 [ user2 . . . usern ] :
+	broadcast
+
+DESCRIPTION
+	hbwrite allows the user to write a message, broadcast, to
+	multiple users' screens at the same time.  hbwrite loops
+	through the list of users given and looks for them on the
+	current host only and if they are found, sends the message,
+	broadcast, to their screen.  If they are not found on the
+	current host, hbwrite lets the user know that that specific
+	user was not found and continues to loop through the list of
+	users.
+
+	It is necessary that the message broadcast not be enclosed by
+	"" or '' marks.  Additionally, no punctuation in the message
+	should be used (?!%$# etc).
+
+OPERANDS
+	The following operands are supported:
+
+	user1 [ user2 . . . usern ] : List of users to send broadcast
+	message to.
+
+	broadcast: A message to be broadcast; this message should not
+	be enclosed in quotation marks or have any punctuation in it
+	such as ! & * %, etc.
+
+EXAMPLES
+	hbwrite new_user unixtool : How are you
+
+	Will send the message, How are you, to unixtool and new_user if
+	they are logged onto the current local host
+
+SEE ALSO
+	write
+
+EXIT VALUES
+	0 - hbwrite to all users successful
+	1 - hbwrite unsuccessful to all
+	2 - hbwrite failed for one or more but not all given users
+
+NOTES/BUGS
+	All users to hbwrite to must be on the current local host.
+
+	The message, broadcast, cannot contain any quotation or
+	punctuation marks.  For example,
+	"How are you"
+	is invalid while
+	How are you
+	is valid
+
+	Another example:
+	How are you?
+	will fail because of the ? mark
+
+

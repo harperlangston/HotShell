@@ -1,0 +1,43 @@
+User Commands:  hunset    
+
+NAME
+	hunset - unset a user-defined variable
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hunset $variable
+
+DESCRIPTION
+        hunset unsets a user-defined variable.  In order to set a
+        user-defined variable in hotshell, the following syntax is
+        used: $variable = [$]value 
+        (Note: value can be a variable name or a string)
+        
+        All variables in hotshell begin with dollar signs. If an 
+        attempt is made to hunset a varible that was not previously
+        set, and appropriate error message will be displayed. hunset
+        also verifies that the variable name begins with a '$'.
+        
+OPERANDS
+        The following operand is supported:
+        
+        $variable : The name of the variable to be unset.
+
+        The variable name must begin with a '$'.
+        
+EXAMPLES
+	hotshell>echo $foo
+	foo: Undefined variable
+	hotshell>$foo = 25
+	hotshell>echo $foo
+	25
+	hotshell>hunset $foo
+	foo: Undefined variable
+	hotshell>hunset foo
+	foo: Invalid variable name
+	Usage: unset $name
+		
+SEE ALSO
+	henv, hsetenv, hunsetenv
+
+

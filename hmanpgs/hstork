@@ -1,0 +1,52 @@
+User Commands:  hstork
+
+NAME
+	hstork - bundles up customizations and sends them to e-mail
+	address specified
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hstork e-mail address
+
+DESCRIPTION
+	hstork bundles up your favorite customizations and mails them
+	to e-mail address specified.  Currently, hstork only bundles up
+	the user's .netscape/bookmarks.html file, the .addressbook
+	file, and everything under HotShell.  See under NOTES for
+	reasoning and explanations.
+
+	Once hstork e-mail is called, a bundle will be sent to the
+	e-mail address, containing a file which must be detached, made
+	executable and run from their $HOME directory. No message is
+	sent to the e-mail address other than the attachments, since it
+	is assumed that the user receiving the bundle is aware of how it
+	should be detached, executed and used.  This is due to the fact
+	that usually a user will be using themselves at another e-mail
+	address for the addressee.
+
+OPERANDS
+	The following operands are supported:
+
+	e-mail address:  The e-mail address the hstork bundle should be
+	sent to.
+
+EXAMPLES
+	hstork random_email@gmail.com - bundles
+	.netscape/bookmarks.html, HotShell/* and .addressbook from
+	$HOME, maintains all permissions and mails them to
+	random_email@gmail.com
+
+SEE ALSO
+	tar, mail, uuencode, uudecode
+
+NOTES/BUGS
+	As noted above, hstork currently only bundles the
+	.netscape/bookmarks.html file, the .addressbook file and the
+	HotShell directory.  It is possible to go into
+	HotShell/hcmds/hstork and easily add more directories or files
+	to add.  One line is commented out which bundles all .xxx
+	files.  The reason for not including these automatically is
+	that often there are quite a few that a user may not
+	necessarily want.  To allow ALL .xxx files to be shipped,
+	remove the # from the front of the line which says: # find
+	$HOME -type f -name ".*" -exec tar rvf htmp.tar {} \;
+

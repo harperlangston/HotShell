@@ -1,0 +1,54 @@
+User Commands:  heds
+
+NAME
+	heds - HotShell Electronic Distribution
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/heds <e-mail address>
+
+DESCRIPTION
+	heds is an electronic distribution program for the hotshell
+	implementation.  heds bundles all of the files and directories
+	in $HOME/HotShell, including heds itself and all documentation
+	(design document, user guide, etc), using har, and then mails
+	this package to the e-mail address specified.  A form letter is
+	generated at the beginning of the e-mail which describes how to
+	install HotShell as well as where to look for the user guide
+	for more information and tutorials after installation.
+	Additionally, heds sends a message back to the receiver after
+	the addressee has run the installation.  This letter will tell
+	the sender if the installation was successful, and if not, it
+	will send a message that the installation was unsuccessful.
+
+	Users who have installed HotShell can use heds to forward
+	HotShell to anyone they choose, and a message of successful
+	completion will be forwarded to the them as well as the
+	originator of the software, Harper Langston.
+
+
+OPERANDS
+	The following operand is supported:
+
+	e-mail:  The e-mail address the sender is sending the HotShell
+	distribution to.
+
+EXAMPLES
+	heds user@cs.nyu.edu - will bundle $HOME/HotShell and send it
+	to user@cs.nyu.edu, generating a form letter on how to install
+	HotShell.
+
+SEE ALSO
+	tar, hstork, har, mail, uuencode, uudecode
+
+NOTES/BUGS
+	heds can be run from any directory since the heds script
+	changes to $HOME and performs all actions from there.
+
+	Currently, heds can only send successful completion messages
+	back to users who are on the same system as the addressee.  For
+	example, if user@cs.nyu.edu uses heds to send HotShell to
+	user@cs.stanford.edu, user@cs.nyu.edu will not receive a message
+	upon installation, but user@cs.nyu.edu will receive a message
+	if they send HotShell to user2@cs.nyu.edu or anyone at
+	courant.nyu.edu.
+

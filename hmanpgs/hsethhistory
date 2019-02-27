@@ -1,0 +1,33 @@
+User Commands: hsethhistory
+
+NAME
+        hsethhistory - reset the size of the .hhistory list
+	(default value is 10)
+	
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hsethhistory value
+        (value must be between 1 and 200)
+
+DESCRIPTION
+        hsethhistory resets the size of the hhistory list. The  
+        default value is 10.  The .hhistory saves commands in a list
+        to avoid repetitive typing and to allow the commands to be  
+        reused in different ways later. hsetsize calls can be invoked 
+        on the command-line or placed in the .hotshrc file.        
+        
+EXAMPLES
+       hotshell>hhistory
+           1     echo one
+           2     echo two two
+           3     echo three three three
+           4     hhistory
+       hotshell>hsethhistory 2        # now, .hhistory will only 
+       hotshell>hhistory              # contain the previous two   
+           5     hsethhistory 2       # commands entered
+           6     hhistory
+           
+SEE ALSO
+	hhistory
+
+

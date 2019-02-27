@@ -1,0 +1,102 @@
+User Commands:  hprint
+
+NAME
+	hprint - will send a job to a specified printer and wait for a
+	specified time, and if the job has not become active, it will
+	move the job to a new printer.
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hprint [ -a printer ] | [ -d printer ] | [
+	printer file [time (in seconds)]]
+
+DESCRIPTION
+	hprint will send a file to the specified printer.  If a time is
+	given, hprint will wait for that time in seconds, and if the
+	job has not become active, it will look for new printers, find
+	the smallest queue, and move that job there.  hprint uses the
+	file $HOME/HotShell/.hotprinters to look for possible printers;
+	the given printer is also searched since it may have the
+	smallest queue.  If time is not given, hprint acts like lpr,
+	simply putting your job in the queue of the given printer.
+
+	The initial call to hprint must use a printer which is in
+	.hotprinters.  If this printer is not in the .hotprinters file,
+	an error message will be generated.  However, a printer can
+	easily be added to the .hotprinters file by using the command:
+	hprint -a printer.  Additionally, a printer can be removed from
+	the .hotprinters file by running hprint -d printer.  See
+	EXAMPLES below for examples of how each of these commands
+	works.
+
+OPTIONS
+	The following options are supported:
+
+	-a printer:  Add printer to the .hotprinters file.  If printer
+	is already in .hotprinters, it will not be added.
+
+	-d printer:  Delete printer from the .hotprinters file.  If
+	printer is not in .hotprinters, it will not be deleted, and an
+	error message will be generated.
+
+OPERANDS
+	The following operands are supported:
+
+	printer job [ time (in seconds)]:
+	send file, job, to printer, and wait for time if specified to
+	see if job has become active.  If so, job will be printed at
+	printer.  Otherwise, hprint will loop through the .hotprinters
+	file, looking for the smallest queue, remove job from the queue
+	of printer and place it in the new smallest queue.
+
+EXAMPLES
+	hotshell>hprint -a nhp66
+	Adding printer nhp66 to your .hotprinters file
+
+	hotshell>hprint -d nhp67
+	nhp67 not in .hotprinters.  Cannot delete.
+
+	hotshell>hprint -d nhp66
+	Removing nhp66 from .hotprinters
+
+	hotshell>hprint nhp33 test 5
+	Printer not in .hotprinters
+	To use this printer, type hprint -a printer and try again.
+
+	hotshell>hprint -a nhp33
+	Adding nhp33 to your .hotprinters file
+
+	hotshell>hprint nhp33 test 5
+	Printing test to printer:  nhp33
+	Job test has not printed after 5 seconds at nhp33.
+	First removing test from nhp33
+	nhp33-988: cancelled
+	Searching nhp7 . . .
+	Searching nhp15 . . .
+	Searching nhp33 . . .
+	nhp7 had smallest printer queue
+	Now printing to nhp7
+
+FILES
+	hprint is dependent on the $HOME/HotShell/.hotprinters file
+	which contains a list of user-defined printers.  Each row
+	contains one printer, and this file can be edited using the -a
+	and -d switches describe above.  To view its contents, type:
+	more $HOME/HotShell/.hotprinters
+
+EXIT VALUES
+	0 - hprint was successful
+	1 - hprint unsuccessful
+
+SEE ALSO
+	lpr, lpq, lprm
+
+NOTES/BUGS
+	A call to hprint printer job must use a printer in the
+	.hotprinters file.  If it is not a valid printer, an error
+	message will be generated, describing how to add this printer
+	to .hotprinters if desired.
+
+	To view the contents of the .hotprinters file, type cat
+	$HOME/HotSHELL/.hotprinters
+
+

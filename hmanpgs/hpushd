@@ -1,0 +1,59 @@
+User Commands: hpushd
+
+NAME
+        hpushd - manipulates directory stack
+	       
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hpushd [+n]
+	hpushd [directory]
+
+DESCRIPTION
+        hpushd pushes directories onto the directory stack. The
+        directory stack allows users to keep track of multiple
+        directories and to switch between them easily.
+        
+        hdirs displays the contents of the directory stack. The top
+        of the stack is the leftmost directory.  The '~' represents
+        the home directory. Therefore, an entry such as ~/foo would 
+        be the same as $HOME/foo.  The top of the stack always
+        contains the current working directory. Directories are
+        removed from the stack with the hpopd function.      
+        
+        hpushd with no arguments switches the top two entries on the
+        stack. It then changes the current working directory to
+        whatever directory is now sitting on top of the stack.
+        
+        hpushd +n rotates the nth directory to the top of the stack. It 
+        then changes the current working directory to new directory.
+        Begin counting at 0. Note that n must be one or more. 
+        
+        hpushd directory pushes directory onto the stack and makes that
+        directory the current working directory.
+        
+OPERANDS
+        The following operands are supported:
+        
+        n  :  hpopdd +n removes the nth directory from the directory
+              stack
+              
+        directory :  pushes that directory onto the stack and makes it
+                     the current working directory.
+        
+EXAMPLES
+        hotshell>hdirs                  # display directory stack
+        ~/HotShell
+        hotshell>pwd
+        /home/john123/HotShell
+        hotshell>hpushd hcmds           # push hcmds onto the stack
+        ~/HotShell/hcmds  ~/HotShell
+        hotshell>hpushd                 # switch the top two entries
+        ~/HotShell  ~/HotShell/hcmds    # on the stack
+        hotshell>hpushd data
+        ~/HotShell/data  ~/HotShell  ~/HotShell/hcmds
+        hotshell>hpushd +2              # rotate directory 2 onto top
+        ~/HotShell/hcmds  ~/HotShell/data  ~/HotShell      # of stack	
+        
+SEE ALSO
+	hdirs, hpopd
+

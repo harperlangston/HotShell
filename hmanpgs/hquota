@@ -1,0 +1,69 @@
+User Commands:  hquota
+
+NAME
+	hquota - finds the five largest files in your directory
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/hquota [ -r ] [ directory ]
+
+DESCRIPTION
+	hquota will find the five largest files in your directory,
+	including all .xxx files (uses ls -a).  If hquota is called
+	without any options, it will do a non-recursive search on the
+	current directory you are in.  Other options include using the
+	-r switch which will do a recursive search on your directory.
+	If a directory is given, hquota will look in that directory,
+	recursively or non-recursively, according to desire.  See
+	EXAMPLES below for samples.
+
+OPTIONS
+	The following options are supported:
+
+	-r:  recursive hquota.  Looks for five largest files in your
+	directory and its subdirectories.
+
+OPERANDS
+	The following operands are supported:
+
+	directory:  If a directory is given, hquota works on that
+	directory, returning the five largest files in that directory
+	or in that directory and its subdirectories, according to
+	whether -r is used or not.  If a directory is not given, hquota
+	works on the current directory.
+
+EXAMPLES
+	hotshell>pwd
+	/home/new_user/HotShell/hcmds
+	hotshell>hquota
+	-rwx------   1 new_user   6126        4429 Nov 27 14:10 heds
+	-rwx------   1 new_user   6126        3748 Nov 21 15:22 hprint
+	-rwx------   1 new_user   6126        3354 Nov 27 13:40 har
+	-rw-------   1 new_user   6126        3039 Nov 27 15:19
+	hquota.txt
+	-rw-------   1 new_user   6126        2170 Nov 27 15:43
+	#hquota.txt#
+	hotshell>
+	hotshell>hquota $HOME
+	-rw-------   1 new_user   6126      486409 Nov  2 11:51 inst
+	-rw-------   1 new_user   6126      393361 Oct 10 16:26
+	.xsession-errors
+	-rw-------   1 new_user   6126      117118 Oct 12 17:34
+	457-503.ps
+	hotshell>
+	hotshell>hquota -r $HOME
+	-rw-------   1 new_user   6126     1082794 Nov 22 13:27 sent-mail
+	-rw-------   1 new_user   6126      602112 Nov 27 15:47
+	history.dat
+	-rw-------   1 new_user   6126      486409 Nov  2 11:51 inst
+	-rw-------   1 new_user   6126      393361 Oct 10 16:26
+	.xsession-errors
+	-rw-r--r--   1 new_user   6126      256710 Sep 22  1999 stuff
+
+SEE ALSO
+	ls, sort, head
+
+NOTES/BUGS
+	hquota looks at all files and directories in your directory
+	using ls -a.  So, .xxx files and directories can possibly be
+	one of the five largest files.
+

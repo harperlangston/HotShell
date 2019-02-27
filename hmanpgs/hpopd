@@ -1,0 +1,48 @@
+User Commands: hpopd
+
+NAME
+        hpopd - manipulates directory stack
+	       
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hpopd [+n]
+
+DESCRIPTION
+        hpopd removes directories from the directory stack. The
+        directory stack allows users to keep track of multiple
+        directories and to switch between them easily.
+        
+        hdirs displays the contents of the directory stack. The 
+        top of the stack is the leftmost directory.  The '~' 
+        represents the home directory. Therefore, an entry such
+        as ~/foo would be the same as $HOME/foo.  The top of the
+        stack always contains the current working directory. 
+        Directories are added to the stack with the hpushd function.       
+        
+        hpopd with no arguments removes the top directory from the
+        stack. It then changes the current working directory to
+        whatever directory is now sitting on top of the stack.
+        
+        hpopd +n removes the nth directory.  Begin counting at 0.
+        Note that n must be one or more.      
+        
+OPERANDS
+        The following operands are supported:
+        
+        n  :  hpopdd +n removes the nth directory from the directory
+              stack
+        
+EXAMPLES
+        hotshell>hdirs                  # display directory stack
+        ~/HotShell
+        hotshell>pwd
+        /home/john123/HotShell
+        hotshell>hpushd hcmds           # push hcmds onto the stack
+        ~/HotShell/hcmds  ~/HotShell
+        hotshell>hpopd +1               # remove 1st dir. from stack
+        ~/HotShell                      # counting from 0
+        		
+SEE ALSO
+	hdirs, hpushd
+
+

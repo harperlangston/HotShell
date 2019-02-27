@@ -1,0 +1,69 @@
+User Commands: hmail 
+
+NAME
+	hmail - contains various features for sending mail
+        
+SYNOPSIS
+	$HOME/HotShell/hcmds/hmail [options]
+
+DESCRIPTION
+        hmail: without any arguments brings up the following menu for 
+        a personal address book. 
+        
+        Address Book Menu 
+	Please select one of the following options:
+	1) Add new user
+	2) Delete user
+	3) Display user information
+	4) Display list of all users in address book
+        5) Quit
+        
+        hmail -n user: Mail notification feature.  It checks if new 
+        mail has arrived from a specified user.  The user's name is  
+        looked up in the address book to determine if his or her e-mail 
+        address has been saved. 
+        
+        hmail -l user:  Send mail base on login name
+        hmail -u user:  Send mail based on user name
+        hmail -nn user: Send mail based on nickname
+        
+        For the -l and -nn options, the address book is searched and 
+        the first match of a login name or nickname is used. For all
+        three options, user should enter the subject, cc and then
+        the body of the message.  Type control-d when finished.
+        
+        hmail file email_addres: sends the text of file to the given
+        e-mail address.  
+        
+        hmail forward new_email_add: If you have changed your e-mail
+        address, your new messages will be forwarded and a message will
+        be sent to the each sender alerting them to the change.
+        
+        hcryptmail file password email_add: Encrypts the file using 
+        the password as a key and then mails it using hmail to the 
+        recipient.
+        
+EXAMPLES
+        hotshell>hmail              # brings up the personal address       
+                                    #  menu
+                                    
+        hotshell>hmail -n betty     # if new mail has arrived from
+                                    # betty there will be a 
+                                    # notification
+                                    
+        hotshell>hmail forward new@123.com  # new mail will be forwarded
+                                    # to new@123.com and sender will
+                                    # be notified of the new e-mail
+                                    # address   
+                                    
+        hcryptmail buzz bee bug@honey.com  # buzz will be encrypted using
+                                    # bee as a key and the new message
+                                    # will be mailed to bug@honey.com
+                                    # using hmail
+        
+SEE ALSO
+        mail, mailx
+	
+NOTES/BUGS
+        The feature to store messages in folders was not implemented.
+

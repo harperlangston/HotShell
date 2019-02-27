@@ -1,0 +1,31 @@
+User Commands:  hman
+
+NAME
+	hman - display manual page for a HotShell specific command
+
+SYNOPSIS
+	$HOME/HotShell/hman hcommand
+
+DESCRIPTION
+	hman searches for and displays the manual pages for the
+	HotShell-specific commands.  All such manual pages are listed
+	in $HOME/HotShell/hmanpgs.  hman uses the Unix more command to
+	view each hman page.
+
+OPERANDS
+	The following operands are supported:
+
+	hcommand:  HotShell command whose manual page the user wishes
+	to view
+
+EXAMPLES
+	hman heds - displays the manual page for heds
+	hman hquota - displayes the manual page for hquota
+
+SEE ALSO
+	man, more
+
+NOTES/BUGS
+	To view the manual page for a HotShell-specific command, hman
+	must be used; man will not return a valid result.
+

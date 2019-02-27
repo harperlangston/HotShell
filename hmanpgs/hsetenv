@@ -1,0 +1,55 @@
+User Commands:  hsetenv    
+
+NAME
+	hsetenv - set an environment variable
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hsetenv $VARNAME  [$]value
+	(note: value can also be a variable)
+
+DESCRIPTION
+        hsetenv sets an environment variable.  In order to set an
+        environment variable in hotshell, the following syntax is
+        used: hsetenv $VARNAME  [$]value  
+        (note: value can be a variable name or a string)
+        
+        By convention, environment variable names are all in 
+        uppercase letters.  All variables in hotshell begin with 
+        dollar signs.  Environment variables are visible to subshells
+        (user-defined variables are not).  hsetenv calls can be  
+        invoked on the command-line or placed in the .hotshrc file.
+        hsetenv verifies that the variable name begins with a '$'
+        
+OPERANDS
+        The following operands are supported:
+        
+        $VARNAME : The name of the environment variable to be set.
+                   By convention, environment variable names are  
+                   all in uppercase letters
+        [$]value : The value assigned to the environment variable.
+                   'value' can be a string or another variable.
+
+        All variable names must begin with a '$'.
+        
+EXAMPLES
+	hotshell>echo $FOO
+	FOO: Undefined variable
+	hotshell>hsetenv $FOO algebra    # set environment variable
+	hotshell>echo $FOO
+	algebra
+	hotshell>echo $bar
+	bar: Undefined variable
+	hotshell>$bar = ice              # set user-define variable
+	hotshell>echo $bar
+	ice
+	hotshell>hotshell                # call a hotshell subshell
+	hotshell>echo $FOO
+	algebra                          # $FOO visible to subshell
+	hotshell>echo $bar
+	bar: Undefined variable          # $bar invisible to subshell
+		
+SEE ALSO
+	henv, hotshrc, hunset, hunsetenv
+
+

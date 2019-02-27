@@ -1,0 +1,34 @@
+User Commands: hcryptmail
+
+NAME
+	hcryptmail - send encrypted mail
+
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hcryptmail file password e-mail
+
+DESCRIPTION
+	hcryptmail will encrypt a file using password as the key and
+	mail it using hmail to the e-mail address.
+
+OPERANDS
+	The following operands are supported:
+	
+	file     : the file to be encrypted.
+	
+	password : the key used by the encryption algorithm.
+	
+	e-mail   : the address to which the encrypted message will
+	           be sent.
+
+EXAMPLES
+        hotshell>encryptmail secretfile elvis ep@nashville.com
+        
+        secretfile will be encrypted using elvis as a key and
+        sent to ep@nashville.com.
+	
+SEE ALSO
+	hmail
+	
+	
+

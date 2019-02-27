@@ -1,0 +1,42 @@
+User Commands:  hotshrc    
+
+NAME
+	hotshrc - reloads the .hotshrc file
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hotshrc
+
+DESCRIPTION
+        The .hotshrc file is used for customization.  It stores aliases, 
+        defaults and variables.  It's values are loaded automatically
+        once when hotshell is invoked and once for each hotshell
+        subshell.  Therefore, if the user were to add new entries to 
+        the .hotshrc file, those changes would not be visible to the 
+        current hotshell.  In order for the current hotshell to 'see' 
+        those changes the .hotshrc file would have to be reloaded.  The 
+        hotshrc command reloads the .hotshrc file.
+
+EXAMPLES
+        Assume that the .hotshrc file is empty when hotshell is invoked.
+        
+        hotshell>echo $king
+        king: Undefined variable
+        hotshell>halias
+        No aliases defined
+        
+        now use a text editor to add the following two lines to the
+        .hotshrc file:
+        
+        $king = elvis
+        halias sing echo my teddybear
+        
+        hotshell>hotshrc                     # load the new values
+        hotshell>echo $king
+        elvis
+        hotshell>sing
+        my teddybear
+		
+SEE ALSO
+	halias, hotshell, hsetenv, hsethhistory, hsetsize 
+

@@ -1,0 +1,86 @@
+User Commands:  har
+
+NAME
+	har - creates an executable archive of files or directories
+	specified by the user
+
+SYNOPSIS
+	$HOME/HotShell/hcmds/har [ -n file ] harfile dir1 | file1 [
+	dir2 | file2] . . . [ dirn | filen ]
+
+DESCRIPTION
+	har will archive files so that they can be restored or moved to
+	a new location. The program creates a file that contains the
+	files or contents of the specified directories and its
+	subdirectories. The final result is an executable harfile with
+	the name supplied by the user.   When this file is executed by
+	calling its name, it recreates the directory hierarchy,
+	preserving the access permissions on all files and
+	directories.
+	Additionally, there is an option an to archive only those files
+	newer than a specified file (date is according to when the last
+	time the specified file was modified).  If any of the given
+	directories or not valid directories or if any of the files
+	given are not valid files, har will exit and not return any
+	file.  Hence, all files and directories must be valid.
+	Additionally, har should be called from $HOME, passing relative
+	pathnames, and the executable from $HOME so that other users
+	can execute the archived file without problems.  Calling har
+	from $HOME is not necessary, but doing so helps avoid possible
+	conflicts.  See NOTES below for further explanation.
+
+OPTIONS
+	The following options are supported:
+
+	-n file:  Only include files in the archive which are newer
+	than file, according to the modification time of file.
+
+OPERANDS
+	The following operand is supported:
+
+	file:  The path name of a file to be placed in the archive.  It
+	is important that the path name by relative and har be called
+	from $HOME so that if this har file is sent another user, they
+	can execute the harfile from their $HOME directory.  If the -n
+	switch is used and the file to be archived is not newer than
+	the -n file, the file will not be included in the archive.
+
+	directory:  The relative path name (in $HOME) of a directory to
+	be archived.  har will archive all files in this directory as
+	well as all files in the directory's subdirectories.  If the -n
+	switch is used, only files which are newer than the
+	modification time of the specified file will be archived.
+
+	harfile:  The name desired for the executable har file which
+	will include all files and directories.  Upon execution of this
+	harfile, it will restore the files and directories and maintain
+	all original permissions.
+
+EXAMPLES
+	har new_file ./HotShell ./test - Creates an executable file,
+	new_file which contains everything in the HotShell directory
+	and the file test.  har here is called from $HOME
+
+	har new_file -n test new_file ./HotShell - Creates an
+	executable file, which contains everything in the HotShell
+	directory where the files having newer modification times than
+	test.
+
+SEE ALSO
+	tar, hstork, heds, uuencode, uudecode
+
+NOTES/BUGS
+	As specified above, it is important to use relative pathnames
+	and call har from $HOME so that problems are avoided.  An
+	example of this is if the user is in $HOME/HotShell/hcmds and
+	does:
+
+	har new ../../HotShell
+	mv ./new ../../new
+
+	Then, new contains everything in the HotShell directory
+	relative to $HOME/HotShell/hcmds, and when new is moved to the
+	parent directory, it cannot be executed because new will try to
+	place the files in ../../HotShell from $HOME, so it will try to
+	place files in a directory above $HOME which is not allowed.
+

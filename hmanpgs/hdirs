@@ -1,0 +1,26 @@
+User Commands: hdirs
+
+NAME
+        hdirs - display the contents of the directory stack
+	       
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	hdirs
+
+DESCRIPTION
+        hdirs displays the contents of the directory stack. The 
+        top of the stack is the leftmost directory.  The '~' 
+        represents the home directory. Therefore, an entry such
+        as ~/foo would be the same as $HOME/foo
+        
+EXAMPLES
+        hotshell>hdirs
+        ~/HotShell
+        hotshell>hpushd hcmds
+        ~/HotShell/hcmds  ~/HotShell
+        hotshell>hdirs
+        ~/HotShell/hcmds  ~/HotShell
+        		
+SEE ALSO
+	hdirs, hpopd, hpushd
+

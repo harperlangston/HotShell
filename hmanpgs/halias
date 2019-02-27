@@ -1,0 +1,53 @@
+User Commands: halias
+
+NAME
+	halias - allows user to assign a name or 'alias' to a command
+	         or group of commands.
+
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	halias [name] [definition]
+	
+
+DESCRIPTION
+        Aliasing is a feature that allows the user to assign a name
+        to a command or a sequence of commands. Variable interpolation
+        is not performed on the definition.  To use an alias, just type
+        it's name at the command line, and it's definition will be 
+        executed. To release an alias use the hunalias command.
+        
+        When halias is invoked without any arguments, all aliases and
+        their definitions are listed.
+        
+        When halias is invoked with one argument, that one argument is
+        supposed to be the name of a previously defined alias.  If the
+        name is in fact an alias, then it's definition is printed.  If
+        it is not the name of an alias, an error message is printed.
+        
+        When halias is invoked with two or more arguments, the first
+        argument is assumed to be the name of a new or previously
+        defined alias and the other arguments are collectively regarded
+        as the definition. halias calls can be invoked on the command 
+        line or placed in the .hotshrc file.
+	
+OPERANDS
+	The following operands are supported:
+
+	name : the name to which the definition will be assigned
+	
+	definition : a command or group of commands
+
+EXAMPLES
+        hotshell>halias
+        No aliases defined
+        hotshell>halias king echo elvis     # king is the new alias
+        hotshell>king
+        elvis
+        hotshell>halias king
+        echo elvis
+        hotshell>halias
+        king  echo elvis
+	
+SEE ALSO
+	hotshrc, hunalias
+	

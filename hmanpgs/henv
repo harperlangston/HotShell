@@ -1,0 +1,30 @@
+User Commands:  henv    
+
+NAME
+	henv - display environment variables
+        
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in command)
+	henv
+
+DESCRIPTION
+        henv displays all environment variables that have been set.
+        One page of variables is displayed at a time. To view the
+        next entry, hit the 'enter' key.  To view the next page of
+        variables, hit the 'space bar'.
+
+EXAMPLES
+	hotshell>henv
+	HOME=/home/john123
+	HOST=sparky
+	HZ=100
+	LANG=C
+	..
+	SHELL=/bin/csh
+	TERM=vt100
+	..
+		
+SEE ALSO
+	hsetenv, hunset, hunsetenv
+
+	

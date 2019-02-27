@@ -1,0 +1,77 @@
+User Commands: hhistory
+
+NAME
+	hhistory - manipulates commands stored in the .hhistory file 
+
+SYNOPSIS
+        $HOME/HotShell/hotshell (Built-in commands)
+	hhistory [number]
+        ^pattern^string
+        !n:s/pattern/string/
+        !n:gs/pattern/string/
+        !n
+        !!
+        
+DESCRIPTION
+        The hhistory mechanism stores commands in a list in the 
+        .hhistory file.  This enables users to avoid repetitive
+        typing and also makes the saved commands available for 
+        later use in a variety of ways.
+        
+        hhistory with no arguments simply displays the contents of
+        the .hhistory file.  The number of commands that are saved
+        can be changed by utilizing the hsethhistory command.  The
+        default value is 10.
+        
+        hhistory can also take one argument in which case it will
+        only display up to 'number' previous commands.
+        
+        The ^pattern^string editing feature allows the user to 
+        substitute 'string' for the first instance of 'pattern' found
+        in the previous command, and then the modified command is 
+        executed.
+        
+        The !n:s/pattern/string/ editing feature is a more general
+        version of the previous utility.  The 'string' is substituted
+        for the first instance of 'pattern' in command number n and
+        the modified command is executed. Also, !n:gs/pattern/string/
+        performs the substitution on all instances of the pattern.
+        
+        !n will repeat command number n.
+        
+        !! repeats the previous command.
+               
+OPERANDS
+	The following operands are supported:
+	
+	number : Used with the hhistory command to display only a 
+	         portion of the hhistory list.
+
+EXAMPLES
+        hotshell>hhistory              # display all saved commands
+	    1     echo one
+	    2     echo two two
+	    3     echo three three three
+            4     hhistory
+        hotshell>hhistory 2            # display last two commands
+            4     hhistory
+	    5     hhistory 2
+	hotshell>echo elvis presley
+	elvis presley
+	hotshell>^presley^costello     # substitution in last command
+	echo elvis costello
+	elvis costello
+	hitshell>!2:s/two/thirty/      # substitution in command 2
+	echo thirty two
+	thirty two
+	hotshell>!3                    # repeat command 3
+	echo three three three
+	three three three
+	hotshell>!!                    # repeat last command
+	echo three three three
+	three three three
+	
+SEE ALSO
+	hsethhistory
+
+

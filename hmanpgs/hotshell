@@ -1,0 +1,59 @@
+User Commands:  hotshell
+
+NAME
+	hotshell - a new shell
+        
+SYNOPSIS
+	$HOME/HotShell/hotshell
+
+DESCRIPTION
+        A new shell which contains the following features:
+       
+        Support For The Following Command Forms:
+        
+        - simple commands 
+        - multiple commands cmd1; cmd2;  
+        - command grouping (cmd1; cmd2; cmd3) 
+        - background commands cmd & 
+        - pipes cmd1 | cmd2 . 
+        - Command substitution cmd1 `cmd2` 
+        - Use of wildcard for file name abbreviation 
+        - Here documents 
+        - Redirection of stdin and stdout (<, >, >>) 
+        - subshell hotshell : $ hotshell 
+        
+        Shell Customization  
+	
+	- .hotshrc file used for all aliases, defaults, and variables 
+	- hpushd, hpopd implemented with a circular stack.  The default
+	  size is 10.  The size can be altered using the command hsetsize
+	  entered at the prompt or placed within the .hothsrc file.
+	
+	Shell Variables
+	
+	- User can set and unset environment as well as user-defined 
+	  variables
+	  
+	Managing The Command Path 
+	
+	- whereis
+	- file
+	- type
+	- aliasing
+	- unaliasing
+	
+        Command History 
+        
+        - Command line editing
+        - .hhistory file used to save command list
+	
+SEE ALSO
+	halias, hcryptmail, hdirs, henv, hhistory, hmail, hotshrc, 
+	hpopd, hpushd, hsetenv, sethhistory, hsetsize, hshowvars,
+	hunalias, hunset, hunsetenv
+	
+NOTES/BUGS
+        Background processing: The child PID is printed but there is
+        no acknowledgement of the death of the child. Kill does not
+        display any message.
+ 
