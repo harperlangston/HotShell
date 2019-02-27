@@ -79,3 +79,8 @@ Installation of HotShell
         also had an installation description at the beginning of it.
         Details are in the User Document.
 
+	For instructions on how to run HotShell as well as
+	a tutorial, there is a User Guide, HotUserDoc.txt,
+	in the $HOME/HotShell/hdesign directory.  Also in
+	this directory is the Design Document, HotDesignDoc.txt,
+	for Unix tool developers.
