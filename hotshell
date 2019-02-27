@@ -1,0 +1,1041 @@
+#!/usr/local/bin/perl -w
+
+%uservars = ();                    # stores user-defined variables  
+%aliases = ();                     # stores aliases
+@dirstack = ();                    # stores directory names
+$stacksize = 0;                    # directory stack 
+$hhistsize = 0;           # number of commands saved in hhistory list
+$createdhhist = 0;        # set for shell that created .hhistory file
+
+&initialize;                       # perform initialization
+
+while () { 
+  $valid_var = 1;                  # valid user-defined variable
+  $proceed = 1;                    # continue to next line?
+  print "hotshell>";               # prompt user
+  chomp($line = <STDIN>);          # get input
+  $line =~ s/^(\s+)//;             # eliminate leading whitespace
+  $proceed = &hhist_subs("$line"); # .hhistory subst. and save cmd. 
+  if(! $proceed) {
+    next;
+  }
+  if ($line eq "") {               # nothing entered on command-line
+    next;
+  }
+  elsif ($line =~ /=/) {           # '=' found...assignment
+    &assign("$line");
+  }  
+  elsif ($line =~ /\bhsetenv\b/) { # set environment variable
+    &hsetenv("$line");
+  }
+  elsif ($line =~ /<</) {          # '<<' found...here document used
+    &heredoc($line);
+  }
+  else {
+    $line =~ s/;/ ;/g;             # separate all commands    
+    &badvar("$line");              # undefined variable used?
+    # if undefined variable found...goto top of loop
+    if (! $valid_var) {     
+      next;
+    }
+    @hargs = split(/\s+/, $line);            # parse line
+    if ($hargs[0] eq "hunset") {             # unset user variable
+      &hunset("$line");                                                    
+      next;                                                               
+    }  
+    if ($hargs[0] eq "hunsetenv") {      # unset environment variable
+      &hunsetenv("$line");
+      next;
+    }
+    $line = &interpolate("$line");           # variable interpolation
+    @tempargs = split(/\s+/, $line);         # parse input line
+    if (exists($aliases{$tempargs[0]})) {    # alias substitution
+      $tempargs[0] = $aliases{$tempargs[0]};
+    }
+    $newargs = join(" ", @tempargs);         # line with substitutions
+    @args2 = split(/\s+/, $newargs);         # parse line
+    $cmd = $args2[0];                        # extract first argument
+    $arg_n = @args2;                         # get number of arguments
+
+    if ($cmd eq "exit") {                    # quit hotshell
+      $filepath = $ENV{"HOME"} . "/HotShell/.hhistory";
+      if($createdhhist && -e "$filepath") {  # if this shell created
+        unlink ("$filepath");                # .hhistory, remove file
+      }
+      last;
+      if ($createdhhist == 1) {              # original hotshell?
+        $ENV{"PATH"} = $oldPATH;             # restore old path
+      }
+    }         
+    elsif ($cmd eq "hotshell" ) {      # call a hotshell subshell
+      &newshell($newargs);                                                                                            
+    }     
+    elsif ($cmd eq "hshowvars" ) {     # display user-defined
+      &hshowvars($newargs);            # variables and values
+    }
+    elsif ($cmd eq "henv") {           # display environment variables
+      &henv($newargs);                 # and their values
+    }
+    elsif ($cmd eq "hotshrc" ) {       # re-load .hotshrc
+      &load_hotshrc($newargs);
+    }
+    elsif ($newargs =~ /&/) {         # '&' found...background process
+      background("$newargs");
+    }      
+    elsif ($cmd eq "hman") {           # hman page requested
+      &hman($newargs);
+    }
+    elsif ($cmd eq "cd") {             # cd command entered
+      &cd($newargs);
+    }
+    elsif ($cmd eq "hpushd") {         # hpushd function
+      &hpushd($newargs);
+    }
+    elsif ($cmd eq "hpopd") {          # hpopd function
+      &hpopd($newargs);
+    }
+    elsif ($cmd eq "hhistory") {       # hhistory command 
+      &hhistory($newargs);
+    }
+    elsif ($cmd eq "hsethhistory") {   # set size of  hhistory list
+      &hsethhistory($newargs);
+    }
+    elsif ($cmd eq "hdirs") {          # display directory stack
+      &hdirs($newargs);
+    }
+    elsif ($cmd eq "hsetsize") {       # set size of directory stack
+      &hsetsize($newargs);
+    }
+    elsif ($cmd eq "halias") {         # alias mechanism
+      &halias($newargs);
+    }
+    elsif ($cmd eq "hunalias") {       # unalias mechanism
+      &hunalias($newargs);
+    }
+    elsif ($cmd eq "hcryptmail") {     # send encrypted file
+      &hcryptmail($newargs);
+    }
+    elsif ($line =~ /\(/) {            # execute command(s) within subshell 
+       system("$newargs");
+    }
+    else {                             # execute command(s)
+      system("$newargs");
+    }
+  }
+}  
+
+# initialize all arrays,hashes and variables
+sub initialize {
+  chomp($workdir = `pwd`);
+  $dirstack[0] = $workdir;       # initialize stack to contain current
+                                 # working directory
+  $stacksize = 10;               # set default dir. stack size = 10
+  $hhistsize = 10;               # set default history list size = 10
+  &load_hotshrc("hotshrc");      # load .hotshrc values
+  $filepath = $ENV{"HOME"} . "/HotShell/.hhistory";
+  if (! -e "$filepath") {        # does .hhistory file exist?
+    
+    `touch $filepath`;           # no, create .hhistory
+    $createdhhist = 1;           # this shell created .hhistory file
+  }
+  if ($createdhhist == 1) {      # original hotshell?
+    $hcmdspath = $ENV{"HOME"} . "/HotShell/hcmds"; # path to hotshell cmds.
+    $oldPATH = $ENV{"PATH"};
+    $ENV{"PATH"} = "${oldPATH}:$hcmdspath";
+  }
+}
+
+# create a new hotshell subshell
+sub newshell {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 1) {
+    print "${args[0]}: Too many arguments\n";
+    print "Usage: hotshell\n";
+  }
+  else {
+    $shellpath = $ENV{"HOME"} . "/HotShell/hotshell";
+    system("$shellpath");
+  }
+}
+
+# set size of hhistory list
+sub hsethhistory {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 2) {
+    print "${args[0]}: Incorrect number of arguments\n";
+    print "Usage: hsethhistory (1-200) \n";
+  }
+  else {
+    $size = $args[1];
+    if ($size >= 1 && $size <= 200) {
+      $hhistsize = $size;
+    }
+    else {
+      print "Invalid size\n";
+      print "Usage: hsethhistory (1-200) \n";
+    }
+  }    
+} 
+  
+#  make necessary .hhistory file substitutions and save command
+sub hhist_subs {
+  @histlines = ();
+  $count = 0;
+  $line_to_save = $_[0];
+  $line_n = 0;
+  $filepath = $ENV{"HOME"} . "/HotShell/.hhistory";
+  if (! -z $filepath) {                      # if .hhistory file is not empty
+    # open .hhistory file for reading
+    open(HHISTORY, $filepath) || warn "can't open .hhistory file\n";
+    while(<HHISTORY>) {       # store lines from .hhistory file
+      $count++;
+      chomp;
+      push(@histlines, $_);
+    }
+    close(HHISTORY);  
+    @tempargs = split(/\s+/, $histlines[$count - 1]);
+    shift(@tempargs);            
+    $line_n = $tempargs[0];             # number of last command in list
+    $tokens = @tempargs; 
+  }    
+  $where_caret = index($_[0], "\^");    
+  $where_bang = index($_[0], "\!");
+  if ($where_caret == 0) {              # line begins with a '^' 
+    if ($count != 0 ) {                 # hhistory list not empty
+      $_[0] =~ s/\^/ \^ /g;             # separate tokens
+      $_[0] =~ s/^(\s+)//;              # eliminate leading white space
+      @tokens = split(/\s+/, $_[0]);    
+      $token_n = @tokens; 
+      
+      if ($token_n == 4 && $tokens[0] eq "^" && $tokens[2] eq "^") {
+        shift(@tempargs);             # remove line number
+        @sans_num = @tempargs;
+        $templine  = join(" ", @sans_num);
+        $templine =~ s/$tokens[1]/$tokens[3]/;    # perform substitution
+        print $templine, "\n";
+        &hhistory_save(-1, $templine);
+        $line = $templine;
+        return 1;
+      }
+      else {
+        print "Invalid substitution\n";
+        print "Usage: ^pattern^string \n"; 
+        &hhistory_save(-1, $line_to_save);
+        return 0;
+      }
+    }
+    else {
+      print"No commands saved in hhistory list\n";
+      &hhistory_save(-1, $line_to_save);
+      return 0;
+    }  
+  }
+  elsif ($where_bang == 0) {                # line begins with a '!' 
+    if ($count != 0 ) {                     # hhistory list not empty
+      $_[0] =~ s/\!/ \! /g;                 # separate tokens  
+      $_[0] =~ s/:/ : /g;                   # separate tokens
+      $_[0] =~ s/\// \/ /g;                 # separate tokens
+      $_[0] =~ s/^(\s+)//;                  # eliminate leading white space
+      @tokens = split(/\s+/, $_[0]);    
+      $token_n = @tokens;     
+      if ($token_n == 2) {
+        if ($tokens[1] eq "!") {            # repeat previous command
+          shift(@tempargs);                 # remove line number
+          @sans_num = @tempargs;
+          $templine  = join(" ", @sans_num);
+          print $templine, "\n";
+          &hhistory_save(-1, $templine);
+          $line = $templine;
+          return 1; 
+        }
+        elsif($tokens[1] >= 1) {
+          if ($tokens[1] <= $line_n && 
+              $tokens[1] >= ($line_n - $hhistsize + 1)) {
+            $index_n = $count - ($line_n - $tokens[1]) - 1;  
+            @tempargs = split(/\s+/, $histlines[$index_n]);
+            shift(@tempargs);  
+            shift(@tempargs);               # remove line number
+            @sans_num = @tempargs;  
+            $templine  = join(" ", @sans_num);
+            print $templine, "\n";
+            &hhistory_save(-1, $templine);
+            $line = $templine;
+            return 1;
+          }
+          else {
+            print "${tokens[1]}: Event not found \n";
+            &hhistory_save(-1, $line_to_save);
+            return 0;         
+          }
+        }
+        else {
+          print "Line number must be >= 1 \n";
+          &hhistory_save(-1, $line_to_save);
+          return 0;        
+        }  
+      }
+      elsif ($token_n == 9) {
+        if ($tokens[1] <= $line_n && 
+             $tokens[1] >= ($line_n - $hhistsize + 1)) {
+          if ($tokens[2] eq ":" && ($tokens[3] eq "s" || $tokens[3] eq "gs")
+            && $tokens[4] eq "/" && $tokens[6] eq "/" 
+            && $tokens[8] eq "/") {
+            $index_n = $count - ($line_n - $tokens[1]) - 1;  
+            @tempargs = split(/\s+/, $histlines[$index_n]);
+            shift(@tempargs);
+            shift(@tempargs);                 # remove line number
+            @sans_num = @tempargs;
+            $templine = join(" ", @sans_num);
+            if ($tokens[3] eq "s") {
+              $templine =~ s/$tokens[5]/$tokens[7]/;    # perform substitution
+            }
+            else {
+              $templine =~ s/$tokens[5]/$tokens[7]/g;    # perform substitution
+            }
+            print $templine, "\n";
+            &hhistory_save(-1, $templine);
+            $line = $templine;
+            return 1;             
+          }
+          else {
+            print "Invalid substitution";
+            print "Usage: !n:[s | gs]/pattern/string/ \n";
+            &hhistory_save(-1, $line_to_save);
+            return 0; 
+          }
+        }
+        else {
+          print "${tokens[1]}: Event not found \n";
+          &hhistory_save(-1, $line_to_save);
+          return 0;
+        }
+      }
+      else {
+        print "Invalid use of ! \n";
+        &hhistory_save(-1, $line_to_save);
+        return 0;
+      }            
+    }
+    else {
+      print"No commands saved in hhistory list\n";
+      &hhistory_save(-1, $line_to_save);
+      return 0;
+    }        
+  }
+  elsif($line_to_save ne "") {
+    &hhistory_save(-1, $line_to_save);
+    return 1;
+  }
+  else {                                             # empty line
+    return 0;
+  }
+}
+
+# save line in .hhistory file
+sub hhistory_save {
+  @args = split(/\s+/, $_[1]);
+  $arg_n = @args;
+
+  @histlines = ();
+  $count = 0;
+  $line_to_save = $_[1];
+  $line_n = 0;
+  $filepath = $ENV{"HOME"} . "/HotShell/.hhistory";
+  if (! -z $filepath) {                      # if .hhistory file is not empty
+    # open .hhistory file for reading
+    open(HHISTORY, $filepath) || warn "can't open .hhistory file\n";
+    while(<HHISTORY>) {       # store lines from .hhistory file
+      $count++;
+      chomp;
+      push(@histlines, $_);
+    }
+    close(HHISTORY);  
+    @tempargs = split(/\s+/, $histlines[$count - 1]);
+    shift(@tempargs);            
+    $line_n = $tempargs[0]; 
+    $tokens = @tempargs; 
+  }
+  if ($_[0] == -1) {                      # save command at end of list
+    if (-z "$filepath") {                 # no entries in .hhistory file
+      open(HHISTORY, ">>$filepath") || warn "can't open .hhistory file\n";
+      print HHISTORY "    1    $line_to_save", "\n";
+      close(HHISTORY);
+    }
+    else {
+      if ($hhistsize > $count ) {
+        $index_start = 0;
+      }
+      else {
+        $index_start = $count - $hhistsize + 1;
+      }
+      unlink("$filepath");                  # delete .hhistory file
+     `touch $filepath `;                    # create new .hhistory file
+      # open .hhistory file for appending
+      open(HHISTORY, ">>$filepath") || warn "can't open .hhistory file\n";    
+      for ($i = $index_start; $i < $count; $i++) {
+        print HHISTORY $histlines[$i], "\n";
+      }
+      # add new command to .hhistory list
+      printf HHISTORY "%5d    %s  \n", $line_n + 1, $line_to_save; 
+      close(HHISTORY);
+    }
+  }
+  else {                                    
+    $histlines[$_[0] - 1] = $_[1];          # replace line in .hhistory list
+    unlink("$filepath");                    # delete .hhistory file
+    `touch $filepath `;                     # create new .hhistory file
+    # open .hhistory file for appending
+    open(HHISTORY, ">>$filepath") || warn "can't open .hhistory file\n";    
+    for ($i = $index_start; $i < $count; $i++) {
+      print HHISTORY $histlines[$i], "\n";
+    }  
+  }  
+}
+
+# display commands stored in .hhistory file
+sub hhistory {
+  @histlines = ();
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  $count = 0;
+  if ($arg_n > 2) {
+    print "${args[0]}: Too many arguments\n";
+    print "Usage: hhistory [1-200] \n";
+  }  
+  else {
+    $filepath = $ENV{"HOME"} . "/HotShell/.hhistory";
+    if ($arg_n == 1) {                        # display hhistory list
+      if (-e "$filepath") {              
+        system("cat $filepath | more");
+      }
+    }
+    else {
+      # open .hhistory file for reading
+      open(HHISTORY, $filepath) || warn "can't open .hhistory file\n";
+      while(<HHISTORY>) {       # store lines in .hhistory file
+        $count++;
+        chomp;
+        push(@histlines, $_);
+      }
+      close(HHISTORY);  
+      @tempargs = split(/\s+/, $histlines[$count - 1]);
+      shift(@tempargs);            
+      $line_n = $tempargs[0];                   # get number of commands in list 
+      if ($args[1] >= 1 && $args[1] <= 200) {   # is argument a num. between 1-200
+        if ($args[1] >= $count) {  
+          system("cat $filepath | more");
+        }
+        else {
+          system("cat $filepath | tail -$args[1]");
+        }
+      }
+      else {
+        print "Argument out of range\n";
+        print "Usage: hhistory [1-200] \n"
+      }
+    }
+  }
+}    
+  
+# load variables and aliases stored in the .hotshrc file
+sub load_hotshrc {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 1) {
+    print "${args[0]}: Too many arguments\n";
+    print "Usage: hotshrc\n";
+  }
+  else {
+    $filepath = $ENV{"HOME"} . "/HotShell/.hotshrc";
+    if (-r $filepath ) {
+      open(HOTSHRC, $filepath) || warn "can't open .hotshrc file\n";
+      while (<HOTSHRC>) {
+        chomp;
+        s/=/ = /;                          # separate operands
+        @tokens = split;
+        $where = index($tokens[0], "\$");     
+        if ($where == 0) {                 # variable assignment?  
+          &assign($_);
+        }  
+        elsif ($tokens[0] eq "hsetenv") {  # set environ. vars.
+          &hsetenv($_);
+        }
+        elsif ($tokens[0] eq "halias") {   # create aliases
+          &halias($_);
+        }
+        elsif ($tokens[0] eq "hsetsize") { # set directory stack size
+          &hsetsize($_);
+        }
+        elsif ($tokens[0] eq "hsethhistory") { # set size of .hhistory list
+          &hsethhistory($_);
+        }
+      }
+      close (HOTSHRC);
+    }
+  }
+}
+
+# determine whether an attempt was made to use 
+# an undefined variable
+sub badvar {
+  my (@args) = split(/\s+/, $_[0]);           # parse input line
+    
+  for ($i = 0; $i < @args; $i++) {       # check for undefined variables
+    $where = index($args[$i], "\$");     # does token contain a '$'
+    if ($where == 0) {                   # '$' was first character of token
+      $temp = substr($args[$i], 1, 80);  # strip off '$'
+      # is token a defined variable?
+      if ((! $uservars{$temp}) && (! $ENV{$temp})) {                
+        print "${temp}: Undefined variable\n";  # no, print out message
+        $valid_var = 0;                         # set flag
+      }
+    }
+  }
+}
+
+# perform variable interpolation for user-defined and
+# environment variables
+sub interpolate {
+  my (@args) = split(/\s+/, $_[0]);
+  my ($arg_n) = @args;
+  for ($i = 0; $i < @args; $i++) {
+    $where = index($args[$i], "\$");     
+    if ($where == 0) {                        # valid variable found
+      $temp = substr($args[$i], 1, 80); 
+      if ($uservars{$temp}) {                 # user-defined var. ? 
+        $_[0] =~ s/\$($temp)/$uservars{$1}/g; # variable interpolation 
+      }
+      else {
+        $_[0] =~ s/\$($temp)/$ENV{$1}/g;
+      }
+    }
+  }
+  return $_[0];
+}  
+
+# cd command...change directory
+sub cd {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n == 1) {
+    chdir;
+    $dirstack[0] = `pwd`;           # store home directory on the stack
+    chomp($dirstack[0]);
+  }
+  elsif ($arg_n != 2) {
+    print "Incorrect number of arguments\n";
+    print "Usage: cd directory_name\n";
+  }
+  elsif (! -e $args[1]) {                          # does file exist?
+    print "${args[1]}: No such file or directory\n";
+  }
+  elsif (! -d $args[1]) {                          # is file a directory?
+    print "${args[1]}: Not a directory\n";
+  }
+  else {
+    chdir("$args[1]") || warn "cannot cd to $args[1]\n"; # change directory
+    $dirstack[0] = `pwd`;             # store new directory on the stack
+    chomp($dirstack[0]);
+  }
+}
+
+# display contents of directory stack
+sub hdirs {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 1) {
+    print "${args[0]}: Does not accept arguments\n";
+    print "Usage: hdirs\n";
+  }
+  else {
+    $filepath = $ENV{"HOME"};
+    for ($i = 0; $i < @dirstack; $i++) {
+      $line = $dirstack[$i];
+      $line =~ s/$filepath/\~/;   
+      print "$line  ";
+    }
+    print "\n";
+  }
+}
+
+# set size of directory stack...max = 100
+sub hsetsize {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 2) {
+    print "${args[0]}: Incorrect number of arguments\n";
+    print "Usage: hsetsize (1-100) \n";
+  }
+  else {
+    $size = $args[1];
+    if ($size >= 1 && $size <= 100) {
+      $stacksize = $size;
+      @dirstack = ();
+      $dirstack[0] = `pwd`;
+    }
+    else {
+      print "Invalid size\n";
+      print "Usage: hsetsize (1-100) \n";
+    }
+  }    
+} 
+
+#hpopd
+sub hpopd {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n > 2) {
+    print "${args[0]}: Too many arguments\n";
+    print "Usage: hpopd [+n]     range of n: 1..stack_size \n";
+  }
+  elsif ($arg_n == 1) {
+    if (@dirstack == 1) {
+      print "${args[0]}: Directory stack empty\n";
+    }
+    else {
+      shift(@dirstack);       # remove top of directory stack
+      &cd("cd $dirstack[0]"); # change working directory
+      &hdirs("hdirs");        # display directory stack
+    }
+  }
+  else {
+    $where = index($args[1], "+");        # does arg. begin with '+' ?
+    if ($where == 0) {                    
+      $temp = substr($args[1], 1, 80);    # strip off the '+'
+      if ($temp >= 1 && $temp <= @dirstack - 1) {
+        if ($temp == @dirstack - 1) {
+          pop(@dirstack);                 # remove last item in stack
+          &hdirs("hdirs");        # display directory stack
+        }
+        else {
+          @dirstack = (@dirstack[0..($temp - 1)], 
+                       @dirstack [($temp + 1)..(@dirstack - 1)]); 
+          &hdirs("hdirs");        # display directory stack             
+        }
+      }
+      elsif ($temp > @dirstack - 1) {
+        print "${args[0]}: Directory stack not that deep\n";
+      }
+      else {
+        print "${args[0]}: Invalid argument\n";
+      }            
+    } 
+    else {
+      print "${args[0]}: Invalid argument\n";
+    }
+  }
+}  
+
+#hpushd
+sub hpushd {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n > 2) {
+    print "${_[0]}: Too many arguments\n";
+    print "Usage: hpushd [ directory_name | +n ] \n";
+    print "       range of n: 1..stack_size \n";
+  }
+  elsif ($arg_n == 1) { 
+    if (@dirstack == 1) {
+      print "${_[0]}: No other directory\n";
+    }
+    else {
+      @dirstack[0,1] = @dirstack[1,0];      # swap elements
+      &cd("cd $dirstack[0]");    # change working directory
+      &hdirs("hdirs");           # display directory stack      
+    }
+  }
+  else {
+    $where = index($args[1], "+");      # does arg. begin with '+' ?
+    if ($where == 0) {                    
+      $temp = substr($args[1], 1, 80);    # strip off the '+'
+      if ($temp >= 1 && $temp <= @dirstack - 1) {
+        for ($i = 0; $i < $temp; $i++) {
+          $tempdir = shift(@dirstack);
+          push(@dirstack, $tempdir);
+        }
+        &cd("cd $dirstack[0]");    # change working directory
+        &hdirs("hdirs");           # display directory stack   
+      }
+      elsif ($temp > @dirstack - 1) {
+        print "${args[0]}: Directory stack not that deep\n";
+      }
+      else {
+        print "${args[1]}: No such file or directory\n";
+      }
+    }
+    else {
+      if (-d $args[1]) {
+        if ((@dirstack - 1) < $stacksize) {
+          unshift(@dirstack, " ");
+          &cd("cd $args[1]");
+          &hdirs("hdirs");
+        }
+        else {
+          pop(@dirstack);
+          unshift(@dirstack, " ");
+          &cd("cd $args[1]");
+          &hdirs("hdirs");
+        }
+      }
+      else {
+        print "${args[1]}: No such file or directory\n";
+      }
+    }  
+  }
+}  
+
+# request for hman pages
+sub hman {
+  my $valid_hmanpg = 0;
+  @hargs = split(/\s+/, $_[0]);
+  $arg_n = @hargs;
+  if ($arg_n != 2) {
+    print "hman: Incorrect number of arguments\n";
+    print "Usage: hman command_name\n";
+    next;
+  } 
+  else {
+    $hmanpath = $ENV{"HOME"} . "/HotShell/hmanpgs";   # path to hman pages 
+    if ( -d "$hmanpath" ) {
+      if (! -r "$hmanpath/$hargs[1]") {
+        print "No hman pages for $hargs[1]\n";
+      }
+      else {     
+        system("cat $hmanpath/$hargs[1] | more");     # display hman page
+      }
+    }
+    else {
+      print "Directory /hmanpath does not exist\n";
+    }
+  }
+}
+
+# here document used
+sub heredoc {
+  $valid_var2 = 1;
+  my (@args) = split(/\s+/, $_[0]);
+  $arg_n = @args;
+ 
+  if ($arg_n < 3) {
+    print "Invalid use of here document\n";
+    print "Usage: command << delimiter\n";
+    print "       document\n";
+    print "       delimiter\n";
+  }
+  else {
+    for ($i = 0; $i < @args; $i++) {            # find delimiter
+      if ($args[$i] eq "<<")  {
+        $delimiter = $args[$i + 1];
+        $delimplace = $i + 1; 
+        last;
+      }
+    }
+    open(INFILE, ">tempheredoc");               # create file
+    close(INFILE);
+    open(INFILE, ">>tempheredoc");              # open file for appending
+    print "> ";                                 # prompt
+    chomp($oneline = <STDIN>);
+    while ($delimiter ne $oneline && $valid_var2) {
+      @tokens = split(/\s+/, $oneline);         # parse input line  
+      # check for undefined variables  
+      for ($i = 0; $i < @tokens && $valid_var2; $i++) { 
+        $where = index($tokens[$i], "\$");
+        if ($where == 0) {
+          $temp = substr($tokens[$i], 1, 80);
+          if ((! $uservars{$temp} ) && (! $ENV{$temp})) {
+            print "${temp}: Undefined variable\n";  
+            $valid_var2 = 0;
+          }
+        }
+      }
+      if ($valid_var2) { 
+        # replace embedded variable with value
+        $oneline = &interpolate("$oneline");
+        print INFILE $oneline, "\n";          # print line to file
+        print"> ";
+        chomp($oneline = <STDIN>);
+      }
+    }    
+    close(INFILE);
+    if ($valid_var2) {
+      $args[$delimplace] = "tempheredoc";    # input now comes from file
+      $args[$delimplace - 1] = "<";
+      $newarglist = join(" ", @args);
+      system("$newarglist");
+    }  
+    if ( -e "tempheredoc" ) {
+      unlink("tempheredoc");                 # delete temporary file
+    }    
+  }
+}
+
+# assignment
+sub assign {    
+  $valid = 1; 
+  
+  $_[0] =~ s/=/ = /;                      # separate operands
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 3) {
+    print "Invalid assignment\n";
+    print "Usage: \$name = value\n";
+  }
+  else {
+    $where = index($args[2], "\$");     
+    if ($where == 0) {                    # is right side a variable?
+      $temp = substr($args[2], 1, 80); 
+      if ($uservars{$temp}) {             # user-defined var.
+        $args[2] = $uservars{$temp};
+      }
+      elsif ($ENV{$temp}) {               # environment variable
+        $args[2] = $ENV{$temp};
+      }
+      else {
+        print "${temp}: Undefined variable\n";
+        $valid = 0;
+      }         
+    }  
+    if ($valid) {
+      $where = index($args[0], "\$");     # is left side a valid var. name?
+      if ($where == 0) {                      
+        $temp2 = substr($args[0], 1, 80);   
+        $uservars{$temp2} = $args[2];     # perform assignment
+      }
+      else {
+        print "${temp2}: Command not found\n";
+      }
+    }
+  }
+}
+
+# unset a variable 
+sub hunset {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 2) {
+    print "Invalid attempt to unset a variable\n";
+    print "Usage: hunset \$name\n";
+  }
+  else {
+    $where = index($args[1], "\$");     
+    if ($where == 0) {                  # is second argument a variable name?
+      $temp = substr($args[1], 1, 80); 
+      if ($uservars{$temp}) {           # if variable exists, delete it
+        delete ($uservars{$temp});
+      }
+      else {
+        print "${temp}: Undefined variable\n";
+      } 
+    }
+    else {
+      print "${args[1]}: Invalid variable name\n";
+      print "Usage: unset \$name\n";
+    }
+  }
+}
+
+# display user-defined variables and their values
+sub hshowvars {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 1) {
+    print "${args[0]}: Too many arguments\n";
+    print "Usage: hshowvars\n";
+  }
+  else {
+    if (%uservars) {             # are there any user defined variables?
+      foreach $var (sort keys(%uservars)) {   # display vars. and values
+        print "$var = $uservars{$var} \n";
+      }
+    }
+    else {
+      print "No user defined variables\n";
+    }
+  }
+}
+
+# set environment variable
+sub hsetenv {
+  $valid = 1; 
+ 
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 3) {
+    print "Invalid assignment\n";
+    print "Usage: hsetenv \$VARNAME value\n";
+  }
+  else {
+    $where = index($args[2], "\$");     
+    if ($where == 0) {                    # is 'value' a variable?
+      $temp = substr($args[2], 1, 80); 
+      if ($uservars{$temp}) {             # user-defined var.
+        $args[2] = $uservars{$temp};
+      }
+      elsif ($ENV{$temp}) {               # environment variable
+        $args[2] = $ENV{$temp};
+      }
+      else {
+        print "${temp}: Undefined variable\n";
+        $valid = 0;
+      }         
+    }  
+    if ($valid) {
+      $where = index($args[1], "\$"); # does VARNAME begin with a '$'?
+      if ($where == 0) {                      
+        $temp2 = substr($args[1], 1, 80);   
+        $ENV{$temp2} = $args[2];     # perform assignment
+      }
+      else {
+        print "${args[1]}: Invalid variable name\n";
+      }
+    }
+  }
+}
+
+# unset environment variable
+sub hunsetenv {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 2) {
+    print "Invalid attempt to unset an environment variable\n";
+    print "Usage: hunsetenv \$VARNAME\n";
+  }
+  else {
+    $where = index($args[1], "\$");     
+    if ($where == 0) {                  # is second argument a variable name?
+      $temp = substr($args[1], 1, 80); 
+      if ($ENV{$temp}) {           # if environment variable exists, delete it
+        delete ($ENV{$temp});
+      }
+      else {
+        print "${$temp}: Undefined variable\n";
+      } 
+    }
+    else {
+      print "${args[1]}: Invalid environment variable name\n";
+      print "Usage: unset \$VARNAME\n";
+    }
+  }
+}
+  
+
+  
+# display environment variables and their values
+sub henv {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 1) {
+    print "${args[0]}: Too many arguments\n";
+    print "Usage: henv\n";
+  }  
+  else {
+    open(INFILE, ">tempenvoutput");             # create file
+    close(INFILE);
+    open(INFILE, ">>tempenvoutput");            # open file for appending  
+    foreach $key (sort keys %ENV) {
+      print INFILE "$key=$ENV{$key}\n";
+    }
+    close(INFILE);
+    system("cat tempenvoutput | more");
+    if ( -e "tempenvoutput" ) {
+      unlink("tempenvoutput");             # delete temporary file
+    } 
+  }
+}
+
+# alias mechanism
+sub halias {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n == 1) {           # list all aliases and their definitions
+    if (%aliases) {                             # are there any aliases?
+      foreach $alias  (sort keys(%aliases)) {   # display aliases and defs.
+        print "$alias  $aliases{$alias} \n";
+      }
+    }
+    else {
+      print "No aliases defined\n";
+    }
+  }
+  elsif ($arg_n == 2) {                        # dislay one definition
+    if (exists($aliases{$args[1]})) {          # does alias exist?
+      print "$aliases{$args[1]} \n";
+    }  
+    else {
+      print "${args[1]}: Not an alias\n";
+    }
+  }
+  else {
+    @defs = @args[2..($arg_n - 1)];            # extract definition
+    $definition = join(" ", @defs);
+    $aliases{$args[1]} = $definition; 
+  }
+} 
+
+# remove an alias
+sub hunalias {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 2) {
+    print "${args[0]}: Incorrect number of arguments\n";
+    print "Usage: ${args[0]}:  alias_name\n";
+  }
+  else {
+    if (exists($aliases{$args[1]})) {          # does alias exist?
+      delete $aliases{$args[1]};
+    }
+    else {
+      print "${args[1]}: Not an alias\n"
+    }
+  }
+}
+
+# send encrypted file using hmail
+sub hcryptmail {
+  @args = split(/\s+/, $_[0]);
+  $arg_n = @args;
+  if ($arg_n != 4) {
+    print "${args[0]}: Incorrect number of arguments\n";
+    print "Usage: hcryptmail file password email_address\n";
+  }
+  else {
+    if (! -e $args[1]) {
+      print "${args[1]}: File Does Not Exist\n";
+    }
+    else {
+      `crypt $args[2] < $args[1] > tempencryptedfile`;
+      system("hmail tempencryptedfile $args[3]");
+      unlink("tempencryptedfile");
+    }
+  }
+}
+
+# run process in background
+sub background {
+  $line_length = length($_[0]);
+  $amper_place = index($_[0], "&");
+  if ($amper_place != $line_length - 1) {
+    print "Invalid attempt to run process in background\n";
+    print "Usage: command [arguments] & \n";
+  }
+  else {
+    $newline = substr($_[0], 0, $line_length - 2); # strip off '&'
+    if (!defined($kidpid = fork())) {
+      warn "cannot fork\n";
+    }
+    elsif ($kidpid == 0) {
+      exec("$newline");
+      warn "cannot exec $newline\n";
+      exit;
+    }
+    else {
+      print $kidpid, "\n";
+    }
+  }  
+}
+
+
+
